@@ -243,7 +243,8 @@
           txt.className = 'big-text';
           txt.innerText = TEXTS[Math.floor(i / 2) % TEXTS.length];
           el.appendChild(txt);
-          items.push({ el: el, type: 'text', x: 0, y: 0, rot: 0, baseZ: -i * CONFIG.zGap });
+          var ty = (isMobile || isSmall) ? -window.innerHeight * 0.35 : 0;
+          items.push({ el: el, type: 'text', x: 0, y: ty, rot: 0, baseZ: -i * CONFIG.zGap });
         } else {
           var projIdx = Math.floor(i / 2) % PROJECTS.length;
           var p = PROJECTS[projIdx];
@@ -268,11 +269,11 @@
           el.appendChild(card);
           var angle = (i / CONFIG.itemCount) * Math.PI * 6;
           var spread = isSmall ? 0.35 : isMobile ? 0.3 : 0.25;
-          var x = Math.cos(angle) * (window.innerWidth * spread);
-          var y = Math.sin(angle) * (window.innerHeight * spread);
+          var cx = (isMobile || isSmall) ? 0 : Math.cos(angle) * (window.innerWidth * spread);
+          var cy = (isMobile || isSmall) ? 0 : Math.sin(angle) * (window.innerHeight * spread);
           var rot = (Math.random() - 0.5) * 25;
 
-          items.push({ el: el, type: 'card', x: x, y: y, rot: rot, baseZ: -i * CONFIG.zGap });
+          items.push({ el: el, type: 'card', x: cx, y: cy, rot: rot, baseZ: -i * CONFIG.zGap });
         }
         world.appendChild(el);
       }
