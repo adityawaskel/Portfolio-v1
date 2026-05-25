@@ -110,6 +110,34 @@
     .scanlines, .vignette, .noise, .hud { pointer-events: none; }
     .scroll-proxy { height: 10000vh; position: absolute; width: 100%; z-index: -1; }
 
+    .card { cursor: pointer; }
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden; transition: all 0.4s;
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; pointer-events: auto; }
+    .modal-close {
+      position: absolute; top: 2rem; right: 2rem; z-index: 51;
+      font-family: var(--font-code); font-size: 1.2rem;
+      color: var(--hud); cursor: pointer; transition: color 0.3s;
+      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { color: var(--accent); }
+    .modal-content {
+      max-width: 520px; width: 85%; max-height: 80vh; overflow-y: auto;
+      padding: 2rem; border: 1px solid var(--border);
+      background: var(--card-bg); backdrop-filter: blur(12px);
+    }
+    .modal-content .proj-label { font-family: var(--font-code); font-size: 0.6rem; color: var(--accent); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+    .modal-content h2 { font-size: 1.8rem; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+    .modal-content .desc { font-family: var(--font-code); font-size: 0.65rem; line-height: 1.6; color: var(--card-text); margin-bottom: 1.25rem; }
+    .modal-content .mimg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .modal-content .mimg-grid .mimg-wrap { border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+    .modal-content .mimg-grid .mimg-wrap:first-child { grid-column: 1 / -1; }
+    .modal-content .mimg-grid .mimg-wrap img { width: 100%; display: block; }
+
     @media (max-width: 768px) {
       .card { width: 260px; min-height: 360px; padding: 1.25rem; }
       .card .img-grid .img-main .img-wrap { height: 110px; }
@@ -171,6 +199,11 @@
   </div>
 
   <div class="scroll-proxy"></div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal-close" id="modalClose">&#10005;</div>
+    <div class="modal-content" id="modalContent"></div>
+  </div>
 
   <script>
     var PROJECTS = [
@@ -250,6 +283,7 @@
           var p = PROJECTS[projIdx];
           var card = document.createElement('div');
           card.className = 'card';
+          card.setAttribute('data-proj', projIdx);
           var randId = 1001 + projIdx;
           var v1 = 0.77 + Math.random() * 0.46;
           var v2 = 0.77 + Math.random() * 0.46;
@@ -323,6 +357,21 @@
       if (feedbackVel) feedbackVel.innerText = Math.abs(state.velocity).toFixed(2);
       if (feedbackCoord) feedbackCoord.innerText = String(state.scroll).slice(0, 7);
 
+      /* Snap to nearest card when scroll settles */
+      if (Math.abs(state.velocity) < snapThreshold && !isSnapping && Math.abs(state.targetSpeed) < snapThreshold * 2) {
+        var snaps = getCardSnapScrolls();
+        var near = snaps[0], minD = Math.abs(state.scroll - near);
+        for (var si = 1; si < snaps.length; si++) {
+          var dd = Math.abs(state.scroll - snaps[si]);
+          if (dd < minD) { minD = dd; near = snaps[si]; }
+        }
+        if (minD > 8) {
+          isSnapping = true;
+          lenis.scrollTo(near, { duration: 0.45, easing: function(t) { return 1 - Math.pow(1 - t, 3); } });
+          setTimeout(function() { isSnapping = false; }, 550);
+        }
+      }
+
       var cameraZ = state.scroll * CONFIG.camSpeed;
       var tiltX = state.mouseY * 5 - state.velocity * 0.5;
       var tiltY = state.mouseX * 5;
@@ -378,6 +427,40 @@
       requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
+
+    /* Snap-to-card + click modal */
+    var isSnapping = false;
+    var snapThreshold = 0.3;
+    function getCardSnapScrolls() {
+      var snaps = [];
+      for (var ci = 0; ci < CONFIG.itemCount / 2; ci++) {
+        snaps.push(((2*ci+1) * CONFIG.zGap) / CONFIG.camSpeed);
+      }
+      return snaps;
+    }
+
+    var modalOverlay = document.getElementById('modal');
+    var modalContent = document.getElementById('modalContent');
+    var modalClose = document.getElementById('modalClose');
+    world.addEventListener('click', function(e) {
+      var cardEl = e.target.closest('.card');
+      if (!cardEl) return;
+      var pi = parseInt(cardEl.getAttribute('data-proj'));
+      if (isNaN(pi)) return;
+      var p = PROJECTS[pi]; if (!p) return;
+      modalContent.innerHTML =
+        '<div class="proj-label">' + p.cat + '</div>' +
+        '<h2>' + p.name + '</h2>' +
+        '<div class="desc">' + p.desc + '</div>' +
+        '<div class="mimg-grid">' +
+          p.imgs.map(function(url) {
+            return '<div class="mimg-wrap"><img src="' + url + '" alt=""></div>';
+          }).join('') +
+        '</div>';
+      modalOverlay.classList.add('open');
+    });
+    modalClose.addEventListener('click', function() { modalOverlay.classList.remove('open'); });
+    modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) modalOverlay.classList.remove('open'); });
 
     var toggleBtn = document.getElementById('toggleMode');
     var htmlEl = document.documentElement;
