@@ -21,6 +21,35 @@
     body {
       background: var(--bg); color: var(--text); font-family: var(--font-display); overflow: hidden; width: 100vw; height: 100vh; cursor: crosshair; transition: background 0.4s;
     }
+
+    /* Loading screen */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: #030303; transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-asterisk {
+      width: 36px; height: 36px;
+      animation: loader-spin 1.6s linear infinite;
+    }
+    .loader-asterisk polygon { fill: var(--accent); }
+    .loader-bar {
+      margin-top: 2rem; width: 120px; height: 1px;
+      background: rgba(255,255,255,0.1); overflow: hidden; position: relative;
+    }
+    .loader-bar::after {
+      content: ''; position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%; background: var(--accent);
+      animation: loader-sweep 1.4s ease-in-out infinite;
+    }
+    @keyframes loader-spin { to { transform: rotate(360deg); } }
+    @keyframes loader-sweep {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
+
     .toggle-mode {
       position: fixed; bottom: 2rem; right: 2rem; z-index: 30; pointer-events: auto;
       font-family: var(--font-code); font-size: 9px; text-transform: uppercase;
@@ -34,7 +63,12 @@
     html.light .vignette { background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.04) 120%); }
     .noise { position: fixed; inset: 0; z-index: 12; opacity: 0.07; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
     html.light .noise { opacity: 0.03; }
-    .hud { position: fixed; inset: 2rem; z-index: 20; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; font-family: var(--font-code); font-size: 10px; color: var(--hud); text-transform: uppercase; transition: color 0.4s; }
+    .hud {
+      position: fixed; inset: 2rem; z-index: 20; pointer-events: none;
+      display: flex; flex-direction: column; justify-content: space-between;
+      font-family: var(--font-code); font-size: 10px; color: var(--hud);
+      text-transform: uppercase; transition: color 0.4s;
+    }
     .hud-top, .hud-bottom { display: flex; justify-content: space-between; align-items: center; }
     .hud a { color: var(--hud); text-decoration: none; transition: color 0.3s; pointer-events: auto; }
     .hud a:hover { color: var(--accent); }
@@ -46,7 +80,13 @@
     .viewport { position: fixed; inset: 0; perspective: 1000px; overflow: hidden; z-index: 1; }
     .world { position: absolute; top: 50%; left: 50%; transform-style: preserve-3d; will-change: transform; }
     .item { position: absolute; left: 0; top: 0; backface-visibility: hidden; transform-origin: center center; display: flex; align-items: center; justify-content: center; }
-    .card { width: 320px; min-height: 440px; background: var(--card-bg); border: 1px solid var(--border); position: relative; padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 20px 50px rgba(0,0,0,0.5); transition: border-color 0.3s, box-shadow 0.3s, background 0.3s; transform: translate(-50%,-50%); }
+    .card {
+      width: 320px; min-height: 440px; background: var(--card-bg); border: 1px solid var(--border);
+      position: relative; padding: 1.75rem; display: flex; flex-direction: column;
+      justify-content: space-between; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 20px 50px rgba(0,0,0,0.5);
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s; transform: translate(-50%,-50%);
+    }
     .card.hovered { border-color: var(--accent); box-shadow: 0 0 30px rgba(255,0,60,0.2), 0 0 0 1px var(--accent); background: rgba(20,20,20,0.8); z-index: 100; }
     html.light .card.hovered { background: rgba(255,255,255,0.95); box-shadow: 0 0 30px rgba(220,38,38,0.1), 0 0 0 1px var(--accent); }
     .card::before, .card::after { content: ''; position: absolute; z-index: 2; pointer-events: none; width: 10px; height: 10px; border: 1px solid transparent; transition: width 0.3s, height 0.3s, border-color 0.3s; }
@@ -69,11 +109,44 @@
     .star { position: absolute; width: 2px; height: 2px; background: var(--star); transform: translate(-50%,-50%); transition: background 0.4s; pointer-events: none; }
     .scanlines, .vignette, .noise, .hud { pointer-events: none; }
     .scroll-proxy { height: 10000vh; position: absolute; width: 100%; z-index: -1; }
+
+    @media (max-width: 768px) {
+      .card { width: 260px; min-height: 360px; padding: 1.25rem; }
+      .card .img-grid .img-main .img-wrap { height: 110px; }
+      .card .img-grid .img-sm .img-wrap { height: 56px; }
+      .card h2 { font-size: 1.2rem; }
+      .card p { font-size: 0.5rem; }
+      .card-footer { font-size: 0.5rem; padding-top: 0.5rem; }
+      .card-id { font-size: 0.6rem; }
+      .big-text { font-size: 14vw; letter-spacing: -0.15rem; -webkit-text-stroke: 1.5px var(--stroke); }
+      .hud { inset: 1rem; font-size: 7px; }
+      .toggle-mode { bottom: 1rem; right: 1rem; padding: 0.35rem 0.7rem; font-size: 7px; }
+      .center-nav { font-size: 7px; }
+    }
+    @media (max-width: 480px) {
+      .card { width: 220px; min-height: 300px; padding: 1rem; }
+      .card .img-grid .img-main .img-wrap { height: 90px; }
+      .card .img-grid .img-sm .img-wrap { height: 46px; }
+      .card .img-grid { gap: 3px; margin: 0.5rem 0; }
+      .card h2 { font-size: 1rem; }
+      .card .img-grid .img-sm { display: none; }
+      .card .img-grid .img-main { grid-column: 1; }
+      .big-text { font-size: 16vw; letter-spacing: -0.1rem; -webkit-text-stroke: 1px var(--stroke); }
+      .hud { inset: 0.75rem; font-size: 6px; }
+      .hud-line { margin: 0 0.5rem; }
+    }
   </style>
 </head>
 <body>
 
-  <button class="toggle-mode" id="toggleMode">🌙 Dark</button>
+  <div id="loader">
+    <svg class="loader-asterisk" viewBox="0 0 120 120">
+      <polygon points="60,4 70,44 112,52 72,66 86,110 60,80 34,110 48,66 8,52 50,44" />
+    </svg>
+    <div class="loader-bar"></div>
+  </div>
+
+  <button class="toggle-mode" id="toggleMode">&#127769; Dark</button>
 
   <div class="scanlines"></div>
   <div class="vignette"></div>
@@ -141,9 +214,12 @@
 
     var TEXTS = PROJECTS.map(function(p){ return p.name.toUpperCase(); });
 
+    var isMobile = window.innerWidth < 768;
+    var isSmall = window.innerWidth < 480;
+
     var CONFIG = {
-      itemCount: 12,
-      starCount: 150,
+      itemCount: isSmall ? 6 : isMobile ? 8 : 12,
+      starCount: isSmall ? 40 : isMobile ? 80 : 150,
       zGap: 1000,
       loopSize: 0,
       camSpeed: 2.5,
@@ -174,23 +250,26 @@
           var card = document.createElement('div');
           card.className = 'card';
           var randId = 1001 + projIdx;
-          var s1 = Math.round(30 + Math.random() * 40);
           var v1 = 0.77 + Math.random() * 0.46;
           var v2 = 0.77 + Math.random() * 0.46;
-          card.innerHTML =
-            '<div class="card-header"><span class="card-id">ID-' + randId + '</span><div style="width:10px;height:10px;background:var(--accent);"></div></div>' +
-            '<div class="img-grid">' +
+          var imgsHtml = isSmall
+            ? '<div class="img-grid"><div class="img-main"><div class="img-wrap"><img src="' + p.imgs[0] + '" alt="' + p.name + '"></div></div></div>'
+            : '<div class="img-grid">' +
               '<div class="img-main"><div class="img-wrap"><img src="' + p.imgs[0] + '" alt="' + p.name + '"></div></div>' +
               '<div class="img-sm" style="width:' + Math.round(v1 * 100) + '%"><div class="img-wrap"><img src="' + p.imgs[1] + '" alt="' + p.name + '"></div></div>' +
               '<div class="img-sm" style="width:' + Math.round(v2 * 100) + '%"><div class="img-wrap"><img src="' + p.imgs[2] + '" alt="' + p.name + '"></div></div>' +
-            '</div>' +
+              '</div>';
+          card.innerHTML =
+            '<div class="card-header"><span class="card-id">ID-' + randId + '</span><div style="width:10px;height:10px;background:var(--accent);"></div></div>' +
+            imgsHtml +
             '<div class="card-body"><h2>' + p.name.split(' ')[0] + '</h2><p>' + p.desc + '</p></div>' +
             '<div class="card-footer"><span>GRID: ' + (projIdx + 1) + 'x0' + (projIdx + 1) + '</span><span>DATA: ' + (Math.random() * 100).toFixed(1) + 'MB</span></div>' +
             '<div style="position:absolute;bottom:1.75rem;right:1.75rem;font-size:4rem;opacity:0.08;font-weight:900;pointer-events:none;color:var(--accent);">0' + (projIdx + 1) + '</div>';
           el.appendChild(card);
           var angle = (i / CONFIG.itemCount) * Math.PI * 6;
-          var x = Math.cos(angle) * (window.innerWidth * 0.25);
-          var y = Math.sin(angle) * (window.innerHeight * 0.25);
+          var spread = isSmall ? 0.35 : isMobile ? 0.3 : 0.25;
+          var x = Math.cos(angle) * (window.innerWidth * spread);
+          var y = Math.sin(angle) * (window.innerHeight * spread);
           var rot = (Math.random() - 0.5) * 25;
 
           items.push({ el: el, type: 'card', x: x, y: y, rot: rot, baseZ: -i * CONFIG.zGap });
@@ -210,9 +289,17 @@
         state.mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
       });
     }
-    init();
 
-    // Hover delegation — works in 3D context where CSS :hover can flicker
+    /* Preload fonts then start */
+    var loader = document.getElementById('loader');
+    document.fonts.ready.then(function() {
+      init();
+      loader.classList.add('hidden');
+    });
+    setTimeout(function() {
+      if (!loader.classList.contains('hidden')) { init(); loader.classList.add('hidden'); }
+    }, 3000);
+
     world.addEventListener('mouseover', function(e) { var c = e.target.closest('.card'); if (c) c.classList.add('hovered'); });
     world.addEventListener('mouseout', function(e) { var c = e.target.closest('.card'); if (c && !c.contains(e.relatedTarget)) c.classList.remove('hovered'); });
 
@@ -227,10 +314,13 @@
     function raf(time) {
       lenis.raf(time);
       var delta = time - lastTime; lastTime = time;
-      if (time % 10 < 1) feedbackFPS.innerText = Math.round(1000 / delta);
+      if (time % 10 < 1) {
+        var fps = Math.round(1000 / delta);
+        if (feedbackFPS) feedbackFPS.innerText = Math.min(fps, 120);
+      }
       state.velocity += (state.targetSpeed - state.velocity) * 0.1;
-      feedbackVel.innerText = Math.abs(state.velocity).toFixed(2);
-      feedbackCoord.innerText = String(state.scroll).slice(0, 7);
+      if (feedbackVel) feedbackVel.innerText = Math.abs(state.velocity).toFixed(2);
+      if (feedbackCoord) feedbackCoord.innerText = String(state.scroll).slice(0, 7);
 
       var cameraZ = state.scroll * CONFIG.camSpeed;
       var tiltX = state.mouseY * 5 - state.velocity * 0.5;
@@ -292,16 +382,16 @@
     var htmlEl = document.documentElement;
     if (localStorage.getItem('theme') === 'light') {
       htmlEl.className = 'light';
-      toggleBtn.textContent = '☀️ Light';
+      toggleBtn.textContent = '\u2600\uFE0F Light';
     }
     toggleBtn.addEventListener('click', function() {
       if (htmlEl.className === 'light') {
         htmlEl.className = 'dark';
-        toggleBtn.textContent = '🌙 Dark';
+        toggleBtn.textContent = '\uD83C\uDF19 Dark';
         localStorage.setItem('theme', 'dark');
       } else {
         htmlEl.className = 'light';
-        toggleBtn.textContent = '☀️ Light';
+        toggleBtn.textContent = '\u2600\uFE0F Light';
         localStorage.setItem('theme', 'light');
       }
     });
