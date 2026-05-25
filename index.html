@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marcus Vance — Creative Developer</title>
+  <title>KNUFF — Creative Studio</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
   <style>
@@ -95,23 +95,24 @@
     .side-text {
       position: fixed; z-index: 20; pointer-events: none;
       font-family: 'Inter', sans-serif;
+      mix-blend-mode: difference; color: #fff;
     }
     .side-left { left: 2.5rem; top: 50%; transform: translateY(-50%); text-align: left; }
     .side-right { right: 2.5rem; top: 50%; transform: translateY(-50%); text-align: right; }
     .side-label {
       font-family: 'DM Mono', monospace; font-size: 0.55rem;
       text-transform: uppercase; letter-spacing: 0.15em;
-      color: var(--muted); margin-bottom: 0.75rem; display: block;
+      color: #fff; margin-bottom: 0.75rem; display: block; opacity: 0.7;
     }
     .side-title {
       font-size: clamp(2.2rem, 5vw, 4.5rem);
       font-weight: 800; line-height: 0.85;
       text-transform: uppercase; letter-spacing: -0.03em;
-      color: var(--text);
+      color: #fff;
     }
     .side-sub {
       font-size: 0.7rem; font-weight: 400;
-      color: var(--muted); line-height: 1.6;
+      color: #fff; line-height: 1.6;
       margin-top: 1rem; max-width: 200px;
     }
     .side-right .side-sub { margin-left: auto; }
@@ -199,7 +200,7 @@
   <button class="toggle-mode" id="toggleMode">&#127769; Dark</button>
 
   <nav class="nav">
-    <a href="index.html" class="nav-logo">Marcus Vance</a>
+    <a href="index.html" class="nav-logo">KNUFF</a>
     <div class="nav-links">
       <a href="projects.html">Projects</a>
       <a href="#">Archive</a>
@@ -214,9 +215,9 @@
   </div>
 
   <div class="side-text side-right">
-    <span class="side-label">Marcus Vance</span>
-    <div class="side-title">Design<br>Code</div>
-    <div class="side-sub">Independent &mdash; San Francisco</div>
+    <span class="side-label">KNUFF</span>
+    <div class="side-title">Motion<br>Design</div>
+    <div class="side-sub">Creative studio &mdash; San Francisco</div>
   </div>
 
   <div class="asterisk-wrap">
