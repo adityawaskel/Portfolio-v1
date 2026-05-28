@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KNUFF — Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #e5e5ea;
+      --blob-1: #ff2a5f; --blob-2: #007aff; --blob-3: #ff9500; --blob-opacity: 0.7;
+      --glass-bg: rgba(255,255,255,0.15);
+      --glass-border: rgba(255,255,255,0.4);
+      --glass-shadow: rgba(0,0,0,0.1);
+      --glass-highlight: rgba(255,255,255,0.8);
+      --glass-caustic: rgba(255,255,255,0.4);
+      --reflection-start: rgba(255,255,255,0.6);
+      --reflection-end: rgba(255,255,255,0.0);
+      --glare-color: rgba(255,255,255,0.5);
+      --scribble: #C20E0E; --accent: #C20E0E;
+      --font: 'Inter', system-ui, sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --text: #111; --text-secondary: rgba(0,0,0,0.5);
+      --nav-text: rgba(0,0,0,0.6);
+      --header-blur: 50px;
+    }
+    [data-theme="dark"] {
+      --bg-color: #000000;
+      --blob-1: #bf5af2; --blob-2: #0a84ff; --blob-3: #ff375f; --blob-opacity: 0.5;
+      --glass-bg: rgba(30,30,35,0.45);
+      --glass-border: rgba(255,255,255,0.15);
+      --glass-shadow: rgba(0,0,0,0.8);
+      --glass-highlight: rgba(255,255,255,0.25);
+      --glass-caustic: rgba(255,255,255,0.05);
+      --reflection-start: rgba(255,255,255,0.15);
+      --reflection-end: rgba(255,255,255,0.0);
+      --glare-color: rgba(255,255,255,0.15);
+      --text: #fff; --text-secondary: rgba(255,255,255,0.5);
+      --nav-text: rgba(255,255,255,0.5);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font); color: var(--text);
+      overflow-x: hidden; transition: color 0.3s;
+      cursor: none;
+    }
+    a, button, input, textarea, [role="button"] { cursor: none; }
+    .cursor-ring {
+      position: fixed; top: 0; left: 0; z-index: 9999;
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1px solid var(--text);
+      pointer-events: none;
+      transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+      transform: translate(-50%, -50%);
+      will-change: transform;
+    }
+    .cursor-ring.hover {
+      width: 44px; height: 44px;
+      border-color: var(--text-secondary);
+    }
+    .cursor-dot {
+      position: fixed; top: 0; left: 0; z-index: 10000;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--text);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: width 0.25s ease, height 0.25s ease;
+    }
+    .cursor-dot.hover {
+      width: 2px; height: 2px;
+    }
+    .page-transition {
+      position: fixed; inset: 0; z-index: 10001;
+      background: #000; pointer-events: none;
+      opacity: 0; transition: opacity 0.35s ease;
+    }
+    .page-transition.active { opacity: 1; }
+
+    .liquid-nav {
+      position: fixed; top: 24px; left: 24px; right: 24px; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      padding: 6px 16px; border-radius: 99px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--header-blur)) saturate(200%);
+      -webkit-backdrop-filter: blur(var(--header-blur)) saturate(200%);
+      box-shadow: 0 40px 80px -20px var(--glass-shadow), 0 10px 30px -10px var(--glass-shadow), inset 0 2px 3px -1px var(--glass-highlight), inset 0 -2px 4px -1px var(--glass-caustic), inset 0 0 0 1px var(--glass-border);
+      transition: all 0.5s ease;
+    }
+    .liquid-nav .brand {
+      position: absolute; left: 16px; z-index: 2;
+      color: var(--text); font-family: var(--font-mono);
+      font-size: 0.8rem; font-weight: 500; letter-spacing: 0.02em;
+      padding: 6px 8px; height: 36px; display: flex; align-items: center;
+    }
+    .nav-links {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .nav-links a {
+      position: relative; z-index: 1;
+      background: transparent; border: none;
+      padding: 6px 14px; height: 36px; border-radius: 99px;
+      font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.02em; color: var(--nav-text); cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+      transition: color 0.3s ease;
+    }
+    .nav-links a.active, .nav-links a:hover { color: var(--text); }
+
+    .theme-fab {
+      position: fixed; bottom: 32px; right: 32px; z-index: 200;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 24px -8px var(--glass-shadow);
+      color: var(--nav-text); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.3s ease, background 0.3s ease;
+    }
+    .theme-fab:hover { color: var(--text); background: var(--glass-bg); }
+    .icon-wrap { position: relative; width: 18px; height: 18px; pointer-events: none; }
+    .icon-wrap svg {
+      position: absolute; top: 0; left: 0;
+      transition: transform 0.5s cubic-bezier(0.34,1.2,0.64,1), opacity 0.4s ease;
+      stroke-width: 2.2;
+    }
+    .sun { opacity: 1; transform: rotate(0deg) scale(1); }
+    .moon { opacity: 0; transform: rotate(-90deg) scale(0); }
+    [data-theme="dark"] .sun { opacity: 0; transform: rotate(90deg) scale(0); }
+    [data-theme="dark"] .moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+    .hero {
+      min-height: 100vh; position: relative;
+      display: flex; flex-direction: column;
+      padding: 120px 60px 60px;
+      pointer-events: none;
+    }
+    .draw-mode .hero { pointer-events: auto; }
+    .hero-content {
+      position: relative; z-index: 2;
+      flex: 1; display: flex; flex-direction: column;
+      justify-content: center; max-width: 680px; margin-top: 80px;
+      pointer-events: none;
+    }
+    .hero-content h1, .hero-content p { pointer-events: none; }
+    .hero-cta, #drawCanvas { pointer-events: auto; }
+    .hero-content h1 {
+      font-size: clamp(40px, 6vw, 72px); font-weight: 900;
+      line-height: 1.04; letter-spacing: -0.04em; margin-bottom: 20px;
+    }
+    .hero-content p {
+      font-size: 14px; line-height: 1.7; color: var(--text-secondary);
+      max-width: 480px; margin-bottom: 28px;
+    }
+    .hero-cta {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--text);
+      border: 1px solid var(--text-secondary); padding: 10px 28px;
+      border-radius: 8px; transition: 0.2s; width: fit-content;
+    }
+    .hero-cta:hover { background: var(--text); color: #fff; }
+
+    #drawCanvas {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 3; cursor: crosshair; touch-action: none;
+    }
+    .draw-mode #drawCanvas { display: block; }
+    #drawCanvas { display: none; }
+
+    .draw-bar {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      z-index: 1001; display: none; gap: 8px; align-items: center;
+      background: rgba(0,0,0,0.04); backdrop-filter: blur(12px);
+      border: 1px solid rgba(0,0,0,0.08); border-radius: 14px;
+      padding: 10px 16px;
+    }
+    [data-theme="dark"] .draw-bar { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+    .draw-mode .draw-bar { display: flex; }
+
+    .draw-bar button {
+      background: transparent; border: 1px solid var(--text-secondary);
+      color: var(--text); padding: 6px 14px; font-size: 10px;
+      font-family: var(--font); text-transform: uppercase;
+      letter-spacing: 0.06em; cursor: pointer; border-radius: 6px;
+      transition: 0.15s; font-weight: 600;
+    }
+    .draw-bar button:hover { background: var(--text); color: #fff; }
+    .draw-bar button.active { background: var(--scribble); color: #fff; border-color: var(--scribble); }
+    .draw-bar .size-dot { display: inline-block; border-radius: 50%; background: var(--scribble); vertical-align: middle; }
+    .draw-bar .sep { width: 1px; height: 24px; background: rgba(255,255,255,0.15); }
+
+    .draw-toggle {
+      position: fixed; bottom: 24px; left: 24px; z-index: 1000;
+      background: transparent; border: 1px solid var(--text-secondary);
+      color: var(--text); padding: 8px 16px; font-size: 10px;
+      font-family: var(--font); text-transform: uppercase;
+      letter-spacing: 0.06em; cursor: pointer; border-radius: 8px;
+      font-weight: 600; transition: 0.2s;
+    }
+    .draw-toggle:hover { background: var(--text); color: #fff; }
+    .draw-mode .draw-toggle { background: var(--scribble); color: #fff; border-color: var(--scribble); }
+
+    .footer {
+      position: relative; z-index: 2;
+      padding: 40px 60px; border-top: 1px solid rgba(128,128,128,0.2);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px; color: var(--text-secondary);
+      pointer-events: none;
+    }
+    .footer a { color: var(--text); pointer-events: auto; }
+    .footer a:hover { color: var(--scribble); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    @media (max-width: 900px) {
+      .liquid-nav { left: 16px; right: 16px; top: 16px; padding: 4px 10px; }
+      .liquid-nav .brand { font-size: 0.65rem; padding: 4px 4px; height: 32px; left: 8px; }
+      .nav-links a { font-size: 0.65rem; padding: 4px 8px; height: 32px; }
+      .nav-links { gap: 2px; }
+      .theme-fab { bottom: 20px; right: 20px; width: 38px; height: 38px; }
+      .hero { padding: 100px 20px 40px; }
+      .hero-content { margin-top: 100px; }
+      .footer { flex-direction: column; gap: 12px; padding: 24px 20px; text-align: center; }
+      .draw-bar { flex-wrap: wrap; justify-content: center; max-width: 90vw; bottom: 90px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-transition" id="pageTransition"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <div class="bg-mesh">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <button class="draw-toggle" id="drawToggle">Draw</button>
+
+  <nav class="liquid-nav" id="liquidNav">
+    <span class="brand">KNUFF</span>
+    <div class="nav-links">
+      <a href="index-new.html" class="active"><span>[●]</span> Home</a>
+      <a href="projects.html"><span>[&nbsp;&nbsp;&nbsp;]</span> Works</a>
+      <a href="about.html"><span>[&nbsp;&nbsp;&nbsp;]</span> About</a>
+      <a href="contact.html"><span>[&nbsp;&nbsp;&nbsp;]</span> Contact</a>
+    </div>
+  </nav>
+
+  <button class="theme-fab" id="modeToggle">
+    <div class="icon-wrap">
+      <svg class="sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+      <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </div>
+  </button>
+
+  <section class="hero" id="hero">
+    <canvas id="drawCanvas"></canvas>
+    <div class="hero-content">
+      <h1>
+        Crafting bold<br>
+        visual identities<br>
+        with motion
+      </h1>
+      <p>
+        KNUFF transforms raw creativity into structured visual systems.
+        Every project is approached with a motion-first mindset,
+        where interaction and aesthetics converge.
+      </p>
+      <a href="projects.html" class="hero-cta">View Projects</a>
+    </div>
+  </section>
+
+  <div class="draw-bar" id="drawBar">
+    <button class="active" data-size="1.5"><span class="size-dot" style="width:4px;height:4px"></span></button>
+    <button data-size="3"><span class="size-dot" style="width:7px;height:7px"></span></button>
+    <button data-size="6"><span class="size-dot" style="width:11px;height:11px"></span></button>
+    <button data-size="10"><span class="size-dot" style="width:16px;height:16px"></span></button>
+    <span class="sep"></span>
+    <button id="clearCanvas">Clear</button>
+    <button id="saveCanvas">Save</button>
+  </div>
+
+  <footer class="footer">
+    <div>&copy; 2026 KNUFF</div>
+    <div class="footer-links">
+      <a href="projects.html">Projects</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <a href="mailto:sayhi@knuff.studio">sayhi@knuff.studio</a>
+  </footer>
+
+  <script>
+    (function() {
+      var t = document.getElementById('pageTransition');
+      if (t) { t.classList.remove('active'); }
+      document.addEventListener('click', function(e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('http')) return;
+        e.preventDefault();
+        if (t) t.classList.add('active');
+        setTimeout(function() { window.location.href = href; }, 350);
+      });
+    })();
+  </script>
+  <script>
+    (function() {
+      var ring = document.getElementById('cursorRing');
+      var dot = document.getElementById('cursorDot');
+      if (!ring || !dot) return;
+      if (window.matchMedia('(pointer: coarse)').matches) { ring.style.display = 'none'; dot.style.display = 'none'; return; }
+      var mx = 0, my = 0, rx = 0, ry = 0;
+      document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+      function tick() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(tick); }
+      tick();
+      var sel = 'a, button, input, textarea, [role="button"], .card, .service-card, .approach-item, .draw-toggle, .hero-cta, .form-submit';
+      document.addEventListener('mouseover', function(e) { var t = e.target.closest(sel); if (t) { ring.classList.add('hover'); dot.classList.add('hover'); } });
+      document.addEventListener('mouseout', function(e) { var t = e.target.closest(sel); if (t) { ring.classList.remove('hover'); dot.classList.remove('hover'); } });
+    })();
+  </script>
+
+  <script type="module">
+    /* ─── THEME ─── */
+    (function() {
+      var stored = localStorage.getItem('knuff-theme');
+      if (stored === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+
+    /* ─── DRAWING CANVAS ─── */
+    var canvas = document.getElementById('drawCanvas');
+    var ctx = canvas.getContext('2d');
+    var hero = document.getElementById('hero');
+    var drawing = false;
+    var brushSize = 1.5;
+    var lastPoint = null;
+    var MIN_DIST = 8;
+
+    var drawCanvasResize = function() {
+      var r = hero.getBoundingClientRect();
+      canvas.width = r.width;
+      canvas.height = r.height;
+      canvas.style.width = r.width + 'px';
+      canvas.style.height = r.height + 'px';
+    };
+    window.addEventListener('resize', drawCanvasResize);
+
+    function getPos(e) {
+      var r = canvas.getBoundingClientRect();
+      var cx = e.touches ? e.touches[0].clientX : e.clientX;
+      var cy = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: cx - r.left, y: cy - r.top };
+    }
+
+    ctx.lineJoin = 'miter';
+    ctx.lineCap = 'square';
+    ctx.strokeStyle = '#C20E0E';
+
+    function dist(a, b) { return Math.sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)); }
+
+    function startDraw(e) {
+      drawing = true; var p = getPos(e);
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); lastPoint = p;
+    }
+
+    function moveDraw(e) {
+      if (!drawing) return; var p = getPos(e);
+      if (dist(p, lastPoint) < MIN_DIST) return;
+      ctx.lineWidth = brushSize; ctx.lineTo(p.x, p.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); lastPoint = p;
+    }
+
+    function endDraw() { drawing = false; lastPoint = null; }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('touchstart', function(e) { e.preventDefault(); startDraw(e); });
+    canvas.addEventListener('touchmove', function(e) { e.preventDefault(); moveDraw(e); });
+    canvas.addEventListener('touchend', function(e) { e.preventDefault(); endDraw(); });
+
+    document.getElementById('drawToggle').addEventListener('click', function() {
+      document.body.classList.toggle('draw-mode');
+      this.textContent = document.body.classList.contains('draw-mode') ? 'Done' : 'Draw';
+      if (document.body.classList.contains('draw-mode')) drawCanvasResize();
+    });
+
+    document.querySelectorAll('.draw-bar button[data-size]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.draw-bar button[data-size]').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        brushSize = parseFloat(btn.getAttribute('data-size'));
+      });
+    });
+
+    document.getElementById('clearCanvas').addEventListener('click', function() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    document.getElementById('saveCanvas').addEventListener('click', function() {
+      var link = document.createElement('a');
+      link.download = 'knuff-scribble.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+
+    /* ─── THEME TOGGLE ─── */
+    (function() {
+      var html = document.documentElement;
+      var btn = document.getElementById('modeToggle');
+      btn.addEventListener('click', function() {
+        var isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        localStorage.setItem('knuff-theme', isDark ? 'light' : 'dark');
+      });
+    })();
+  </script>
+
+</body>
+</html>

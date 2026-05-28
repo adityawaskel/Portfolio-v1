@@ -4,11 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Project — KNUFF</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://unpkg.com/gsap@3/dist/Flip.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html.dark { --bg: #030303; --text: #e0e0e0; --muted: #555; --accent: #ff003c; --border: rgba(255,255,255,0.08); }
-    html.light { --bg: #f5f5f0; --text: #111; --muted: #999; --accent: #dc2626; --border: rgba(0,0,0,0.08); }
+    body { cursor: none; }
+    a, button, input, textarea, [role="button"] { cursor: none; }
+    .cursor-ring {
+      position: fixed; top: 0; left: 0; z-index: 9999;
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1px solid var(--text);
+      pointer-events: none;
+      transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+      transform: translate(-50%, -50%);
+      will-change: transform;
+    }
+    .cursor-ring.hover { width: 44px; height: 44px; border-color: var(--muted); }
+    .cursor-dot {
+      position: fixed; top: 0; left: 0; z-index: 10000;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--text);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: width 0.25s ease, height 0.25s ease;
+    }
+    .cursor-dot.hover { width: 2px; height: 2px; }
+    .page-transition {
+      position: fixed; inset: 0; z-index: 10001;
+      background: #000; pointer-events: none;
+      opacity: 0; transition: opacity 0.35s ease;
+    }
+    .page-transition.active { opacity: 1; }
+    html.dark { --bg: #030303; --text: #e0e0e0; --muted: #555; --accent: #ff003c; --border: rgba(255,255,255,0.08); --glass-bg: rgba(20,20,20,0.55); --glass-border: rgba(255,255,255,0.06); --glass-text: rgba(255,255,255,0.8); --glass-text-muted: rgba(255,255,255,0.35); --glass-accent: #fff; --glare-base: rgba(255,255,255,0.04); --font-mono: 'DM Mono', monospace; --nav-text: rgba(255,255,255,0.5); --header-blur: 50px; --glass-shadow: rgba(0,0,0,0.8); --glass-highlight: rgba(255,255,255,0.25); --glass-caustic: rgba(255,255,255,0.05); }
+    html.light { --bg: #f5f5f0; --text: #111; --muted: #999; --accent: #dc2626; --border: rgba(0,0,0,0.08); --glass-bg: rgba(255,255,255,0.55); --glass-border: rgba(0,0,0,0.06); --glass-text: rgba(0,0,0,0.8); --glass-text-muted: rgba(0,0,0,0.35); --glass-accent: #000; --glare-base: rgba(255,255,255,0.2); --font-mono: 'DM Mono', monospace; --nav-text: rgba(0,0,0,0.6); --header-blur: 50px; --glass-shadow: rgba(0,0,0,0.1); --glass-highlight: rgba(255,255,255,0.8); --glass-caustic: rgba(255,255,255,0.4); }
     html { scroll-behavior: smooth; }
     body {
       background: var(--bg); color: var(--text);
@@ -19,29 +48,71 @@
     ::selection { background: var(--accent); color: #fff; }
     a { text-decoration: none; color: inherit; }
 
-    .toggle-mode {
-      position: fixed; bottom: 2rem; right: 2rem; z-index: 100;
-      background: var(--border); border: none; color: var(--text);
-      padding: 0.5rem 1rem; font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem; cursor: pointer; text-transform: uppercase;
-      letter-spacing: 0.12em; transition: 0.3s; backdrop-filter: blur(12px);
+    .liquid-nav {
+      position: fixed; top: 24px; left: 24px; right: 24px; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      padding: 6px 16px;
+      border-radius: 99px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--header-blur, 50px)) saturate(200%);
+      -webkit-backdrop-filter: blur(var(--header-blur, 50px)) saturate(200%);
+      box-shadow: 0 40px 80px -20px var(--glass-shadow), 0 10px 30px -10px var(--glass-shadow), inset 0 2px 3px -1px var(--glass-highlight), inset 0 -2px 4px -1px var(--glass-caustic), inset 0 0 0 1px var(--glass-border);
+      transition: all 0.5s ease;
     }
-    .toggle-mode:hover { background: var(--accent); color: #fff; }
+    .liquid-nav .brand {
+      position: absolute; left: 16px; z-index: 2;
+      color: var(--text); font-family: var(--font-mono);
+      font-size: 0.8rem; font-weight: 500; letter-spacing: 0.02em;
+      padding: 6px 8px; height: 36px; display: flex; align-items: center;
+    }
+    .nav-links {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .nav-links a {
+      position: relative; z-index: 1;
+      background: transparent; border: none;
+      padding: 6px 14px; height: 36px; border-radius: 99px;
+      font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.02em; color: var(--nav-text); cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+      transition: color 0.3s ease;
+    }
+    .nav-links a.active, .nav-links a:hover { color: var(--text); }
 
-    nav {
-      position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
-      padding: 1.5rem 2.5rem; display: flex; justify-content: space-between;
-      align-items: center; mix-blend-mode: difference;
+    .theme-fab {
+      position: fixed; bottom: 32px; right: 32px; z-index: 200;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 24px -8px var(--glass-shadow);
+      color: var(--nav-text); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.3s ease, background 0.3s ease;
     }
-    nav a {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
-      text-transform: uppercase; letter-spacing: 0.12em;
-      color: rgba(255,255,255,0.5); transition: color 0.3s;
+    .theme-fab:hover { color: var(--text); background: var(--card-bg); }
+    .icon-wrap { position: relative; width: 18px; height: 18px; pointer-events: none; }
+    .icon-wrap svg {
+      position: absolute; top: 0; left: 0;
+      transition: transform 0.5s cubic-bezier(0.34,1.2,0.64,1), opacity 0.4s ease;
+      stroke-width: 2.2;
     }
-    nav a:hover { color: #fff; }
+    .sun { opacity: 1; transform: rotate(0deg) scale(1); }
+    .moon { opacity: 0; transform: rotate(-90deg) scale(0); }
+    [data-theme="dark"] .sun { opacity: 0; transform: rotate(90deg) scale(0); }
+    [data-theme="dark"] .moon { opacity: 1; transform: rotate(0deg) scale(1); }
+    @media (max-width: 900px) {
+      .liquid-nav { left: 16px; right: 16px; top: 16px; padding: 4px 10px; }
+      .liquid-nav .brand { font-size: 0.65rem; padding: 4px 4px; height: 32px; left: 8px; }
+      .nav-links a { font-size: 0.65rem; padding: 4px 8px; height: 32px; }
+      .nav-links { gap: 2px; }
+      .theme-fab { bottom: 20px; right: 20px; width: 38px; height: 38px; }
+      .container { padding-top: 5.5rem; }
+    }
 
     .container {
-      max-width: 1100px; margin: 0 auto; padding: 6rem 2.5rem 4rem;
+      max-width: 1100px; margin: 0 auto; padding: 5.5rem 2.5rem 4rem;
     }
 
     .top-bar {
@@ -95,28 +166,122 @@
     .project-nav .disabled { opacity: 0.2; pointer-events: none; }
 
     @media (max-width: 768px) {
-      nav { padding: 1rem 1.25rem; }
-      .container { padding: 4rem 1.25rem 3rem; }
+      .container { padding: 4rem 1.25rem 3rem; padding-top: 5.5rem; }
       h1 { font-size: clamp(1.8rem, 10vw, 3rem); }
       .desc { font-size: 0.85rem; }
-      .toggle-mode { bottom: 1rem; right: 1rem; padding: 0.35rem 0.7rem; font-size: 0.5rem; }
+    }
+
+    /* Bento grid */
+    .bento-container {
+      display: grid;
+      gap: 10px;
+      width: 100%;
+      max-height: 600px;
+      margin-bottom: 2rem;
+    }
+    .bento-container.rows-3-1-1 { grid-template-rows: 3fr 1fr 1fr; }
+    .bento-container.rows-1-3-1 { grid-template-rows: 1fr 3fr 1fr; }
+    .bento-container.rows-1-1-3 { grid-template-rows: 1fr 1fr 3fr; }
+    .bento-container.cols-3-1-1 { grid-template-columns: 3fr 1fr 1fr; }
+    .bento-container.cols-1-3-1 { grid-template-columns: 1fr 3fr 1fr; }
+    .bento-container.cols-1-1-3 { grid-template-columns: 1fr 1fr 3fr; }
+    .bento-item {
+      border-radius: 8px;
+      display: flex; justify-content: center; align-items: center;
+      position: relative; cursor: pointer; overflow: hidden;
+      border: 1px solid var(--border); min-height: 100px;
+    }
+    .bento-item img {
+      position: absolute; inset: 0;
+      object-fit: cover; width: 100%; height: 100%; z-index: 1;
+    }
+    .bento-item .image-overlay {
+      position: absolute; inset: 0;
+      background: #000; opacity: 0; z-index: 2; transition: opacity 0.3s;
+    }
+    .bento-item:hover { z-index: 10; }
+
+    /* Orbit gallery */
+    @property --rotate {
+      syntax: '<number>'; inherits: true; initial-value: 0;
+    }
+    @keyframes rotateAnim {
+      to { --rotate: 1; }
+    }
+    .orbit-section {
+      width: 100%; min-height: 35vmin;
+      position: relative;
+      animation: rotateAnim 30s linear infinite;
+    }
+    .orbit-mode { display: flex; gap: 3rem; align-items: flex-start; flex-wrap: wrap; }
+    .orbit-mode .orbit-text { flex: 1; min-width: 260px; }
+    .orbit-mode .orbit-section {
+      width: 38vmin; min-height: 38vmin; flex-shrink: 0;
+      margin-top: 0;
+    }
+    .orbit-mode .project-nav { width: 100%; }
+    .orbit-section ul {
+      position: absolute; left: 50%; top: 50%;
+      display: block; width: 0; height: 0;
+      margin: 0; padding: 0; list-style: none;
+      rotate: calc(var(--rotate) * 360deg);
+    }
+    .orbit-section ul li {
+      position: absolute; top: 0; left: 0;
+      transform-origin: 0 0;
+      transform: rotate(calc(360deg * var(--angle))) translate(5.5vmin, 5.5vmin);
+    }
+    .orbit-section ul li:hover { z-index: 999; }
+    .orbit-section ul li a {
+      display: block; width: 8vmin; aspect-ratio: 1;
+      transform: rotate(calc(-360deg * (var(--angle) + var(--rotate))));
+    }
+    .orbit-section ul li a img {
+      display: block; margin: 0; width: 100%; height: 100%;
+      object-fit: cover; scale: var(--distance, 1); transition: scale 150ms ease-out;
+      border-radius: 4px; border: 1px solid var(--border);
     }
   </style>
 </head>
 <body>
+  <div class="page-transition" id="pageTransition"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
 
-  <nav>
-    <a href="projects.html">&larr; Projects</a>
-    <a href="index.html">KNUFF</a>
+  <nav class="liquid-nav" id="liquidNav">
+    <span class="brand">KNUFF</span>
+    <div class="nav-links">
+      <a href="index-new.html"><span>[&nbsp;&nbsp;&nbsp;]</span> Home</a>
+      <a href="projects.html"><span>[&nbsp;&nbsp;&nbsp;]</span> Works</a>
+      <a href="about.html"><span>[&nbsp;&nbsp;&nbsp;]</span> About</a>
+      <a href="contact.html"><span>[&nbsp;&nbsp;&nbsp;]</span> Contact</a>
+    </div>
   </nav>
 
-  <button class="toggle-mode" id="toggleMode">&#127769; Dark</button>
+  <button class="theme-fab" id="modeToggle">
+    <div class="icon-wrap">
+      <svg class="sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+      <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </div>
+  </button>
 
   <div class="container" id="content"></div>
 
   <script>
     var PROJECTS = [
-      { name: "Drakkar Active", cat: "Brand Identity", year: "2026",
+      { name: "Drakkar Active", orbit: true, cat: "Brand Identity", year: "2026",
         desc: "A comprehensive brand ecosystem built for premium activewear. Every touchpoint — from packaging to digital — communicates raw energy and editorial precision. The visual language fuses bold typography with motion-driven storytelling, creating an identity that performs as hard as the athletes who wear it.",
         imgs: [
           "https://framerusercontent.com/images/Nlya9IwhYh6s6r5ZswHRc4YQHg.png",
@@ -135,14 +300,20 @@
         imgs: [
           "https://framerusercontent.com/images/wGoJ1pR00RnyvY5yV2tHLnVug.png",
           "https://framerusercontent.com/images/L4JFjoPZv95YpM6qhRLzQPI.png",
-          "https://framerusercontent.com/images/wGoJ1pR00RnyvY5yV2tHLnVug.png"
+          "https://framerusercontent.com/images/1B0RLMCaVDvsmorirSf1HArtCQ.png",
+          "https://framerusercontent.com/images/61vAGpek5qdg4CUCzreUnlKbq3k.png",
+          "https://framerusercontent.com/images/nJDCsAlglH6pY3T8CeibFY6s7A.png",
+          "https://framerusercontent.com/images/8CRnhUEDW89tBdyeUWTZhjm7l7Q.png"
         ]},
-      { name: "iPhone 17 PRO", cat: "Product Launch", year: "2025",
+      { name: "iPhone 17 PRO", bento: true, cat: "Product Launch", year: "2025",
         desc: "A cinematic product reveal experience built around real-time 3D rendering and seamless transitions. The interface reacts to scroll and gesture, guiding visitors through a curated narrative that highlights every design detail with dramatic precision.",
         imgs: [
           "https://framerusercontent.com/images/olaOhrHVlGO3DVhHOpsfcyclEc.webp",
           "https://framerusercontent.com/images/p1fw8V44dorCn4I6xC4QxEhOkNI.webp",
-          "https://framerusercontent.com/images/RKMUn21UkvG5GFzGOEdJBCCtEU.png"
+          "https://framerusercontent.com/images/RKMUn21UkvG5GFzGOEdJBCCtEU.png",
+          "https://framerusercontent.com/images/MRuRSshaUN3xI8oeVBarOalUE.png",
+          "https://framerusercontent.com/images/xlCxWmnnoibpHVaZqY4dtimkNao.png",
+          "https://framerusercontent.com/images/z9i9jrSneAzkwdVlHgLj5sNXSo.png"
         ]},
       { name: "Formula 1", cat: "Data Viz", year: "2025",
         desc: "A high-speed telemetry dashboard powered by GPU-accelerated particle streams. Real-time data flows through a dynamic interface that mirrors the intensity of the track. Every visualization is built for clarity at 300 km/h.",
@@ -168,21 +339,54 @@
     document.title = p.name + ' — KNUFF';
 
     var content = document.getElementById('content');
-    content.innerHTML =
+    function galleryHtml(imgs) {
+      var h = '<div class="img-gallery">';
+      h += '<div class="hero-img"><img src="' + imgs[0] + '" alt=""></div>';
+      for (var gi = 1; gi < imgs.length; gi += 2) {
+        h += '<div class="side-imgs">';
+        h += '<img src="' + imgs[gi] + '" alt="">';
+        if (gi + 1 < imgs.length) h += '<img src="' + imgs[gi + 1] + '" alt="">';
+        h += '</div>';
+      }
+      h += '</div>';
+      return h;
+    }
+    function bentoHtml(imgs) {
+      var pos = [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[0,2],[1,2],[2,2]];
+      var h = '<div class="bento-container cols-1-3-1 rows-1-3-1">';
+      for (var bi = 0; bi < pos.length; bi++) {
+        var c = pos[bi][0], r = pos[bi][1];
+        var idx = bi % imgs.length;
+        var cls = (c === 1 && r === 1) ? 'bento-item center-piece' : 'bento-item';
+        h += '<div data-column="' + c + '" data-row="' + r + '" class="' + cls + '">';
+        h += '<img src="' + imgs[idx] + '" alt=""><div class="image-overlay"></div></div>';
+      }
+      h += '</div>';
+      return h;
+    }
+    function orbitHtml(imgs) {
+      var h = '<div class="orbit-section">';
+      h += '<ul>';
+      for (var oi = 0; oi < 9; oi++) {
+        var idx = oi % imgs.length;
+        var angleFrac = (oi + 1) / 9;
+        h += '<li style="--angle:' + angleFrac + '">';
+        h += '<a><img src="' + imgs[idx] + '" alt="" /></a></li>';
+      }
+      h += '</ul></div>';
+      return h;
+    }
+    var textHtml =
       '<div class="top-bar">' +
         '<span class="num">' + String(idx + 1).padStart(2, '0') + '</span>' +
         '<span class="year">&copy; ' + p.year + '</span>' +
       '</div>' +
       '<h1>' + p.name + '</h1>' +
       '<span class="cat">' + p.cat + '</span>' +
-      '<div class="desc">' + p.desc + '</div>' +
-      '<div class="img-gallery">' +
-        '<div class="hero-img"><img src="' + p.imgs[0] + '" alt="' + p.name + '"></div>' +
-        '<div class="side-imgs">' +
-          '<img src="' + p.imgs[1] + '" alt="' + p.name + '">' +
-          '<img src="' + p.imgs[2] + '" alt="' + p.name + '">' +
-        '</div>' +
-      '</div>' +
+      '<div class="desc">' + p.desc + '</div>';
+    var mediaHtml = p.orbit ? orbitHtml(p.imgs) : p.bento ? bentoHtml(p.imgs) : galleryHtml(p.imgs);
+    if (p.orbit) textHtml = '<div class="orbit-text">' + textHtml + '</div>';
+    content.innerHTML = textHtml + mediaHtml +
       '<div class="project-nav">' +
         '<a href="project.html?id=' + (idx - 1) + '" class="' + (idx === 0 ? 'disabled' : '') + '">&larr; Previous</a>' +
         '<a href="projects.html">All Projects</a>' +
@@ -190,20 +394,109 @@
       '</div>';
 
     /* Theme toggle */
-    var toggleBtn = document.getElementById('toggleMode');
-    var htmlEl = document.documentElement;
-    if (localStorage.getItem('theme') === 'light') {
-      htmlEl.className = 'light'; toggleBtn.textContent = '\u2600\uFE0F Light';
-    }
-    toggleBtn.addEventListener('click', function() {
-      if (htmlEl.className === 'light') {
-        htmlEl.className = 'dark'; toggleBtn.textContent = '\uD83C\uDF19 Dark';
-        localStorage.setItem('theme', 'dark');
-      } else {
-        htmlEl.className = 'light'; toggleBtn.textContent = '\u2600\uFE0F Light';
-        localStorage.setItem('theme', 'light');
+    (function() {
+      var stored = localStorage.getItem('knuff-theme') || localStorage.getItem('theme') || 'dark';
+      var html = document.documentElement;
+      html.className = stored;
+      html.setAttribute('data-theme', stored);
+      var btn = document.getElementById('modeToggle');
+      if (btn) {
+        btn.addEventListener('click', function() {
+          var isDark = html.getAttribute('data-theme') === 'dark';
+          var next = isDark ? 'light' : 'dark';
+          html.className = next;
+          html.setAttribute('data-theme', next);
+          localStorage.setItem('knuff-theme', next);
+          localStorage.setItem('theme', next);
+        });
       }
-    });
+    })();
+
+    /* Orbit proximity */
+    if (p.orbit) {
+      document.getElementById('content').classList.add('orbit-mode');
+      var orbitImages = document.querySelectorAll('.orbit-section img');
+      function onOrbitMove(e) {
+        if (!orbitImages.length) return;
+        orbitImages.forEach(function(img) {
+          var rect = img.getBoundingClientRect();
+          var cx = rect.left + rect.width / 2;
+          var cy = rect.top + rect.height / 2;
+          var dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+          var maxDist = Math.min(window.innerWidth, window.innerHeight);
+          img.style.setProperty('--distance', Math.max(0.1, 1 - dist / maxDist));
+        });
+      }
+      document.addEventListener('pointermove', onOrbitMove);
+    }
+
+    /* Bento grid */
+    if (p.bento) {
+      gsap.registerPlugin(Flip);
+      var bentoContainer = document.querySelector('.bento-container');
+      var bentoItems = bentoContainer.querySelectorAll('[data-row]');
+      var rowClasses = ['rows-3-1-1', 'rows-1-3-1', 'rows-1-1-3'];
+      var colClasses = ['cols-3-1-1', 'cols-1-3-1', 'cols-1-1-3'];
+      var activeColumn = 1, activeRow = 1, doFlip = false;
+      bentoItems.forEach(function(el) {
+        var col = el.dataset.column, row = el.dataset.row;
+        el.addEventListener('mouseenter', function() {
+          var state = Flip.getState(bentoItems);
+          if (col != activeColumn) {
+            bentoContainer.classList.remove(colClasses[activeColumn]);
+            bentoContainer.classList.add(colClasses[col]);
+            activeColumn = col; doFlip = true;
+          }
+          if (row != activeRow) {
+            bentoContainer.classList.remove(rowClasses[activeRow]);
+            bentoContainer.classList.add(rowClasses[row]);
+            activeRow = row; doFlip = true;
+          }
+          if (doFlip) Flip.from(state, { duration: 0.4, ease: 'power2.out', onStart: function() { doFlip = false; }, absolute: true });
+        });
+      });
+      bentoContainer.addEventListener('mouseleave', function() {
+        doFlip = true;
+        var state = Flip.getState(bentoItems);
+        bentoContainer.classList.remove(colClasses[activeColumn]);
+        bentoContainer.classList.remove(rowClasses[activeRow]);
+        bentoContainer.classList.add(colClasses[1]);
+        bentoContainer.classList.add(rowClasses[1]);
+        activeColumn = 1; activeRow = 1;
+        Flip.from(state, { duration: 0.4, ease: 'power2.out', onStart: function() { doFlip = false; }, absolute: true });
+      });
+    }
+  </script>
+
+  <script>
+    (function() {
+      var t = document.getElementById('pageTransition');
+      if (t) t.classList.remove('active');
+      document.addEventListener('click', function(e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('http')) return;
+        e.preventDefault();
+        if (t) t.classList.add('active');
+        setTimeout(function() { window.location.href = href; }, 350);
+      });
+    })();
+  </script>
+  <script>
+    (function() {
+      var ring = document.getElementById('cursorRing');
+      var dot = document.getElementById('cursorDot');
+      if (!ring || !dot) return;
+      if (window.matchMedia('(pointer: coarse)').matches) { ring.style.display = 'none'; dot.style.display = 'none'; return; }
+      var mx = 0, my = 0, rx = 0, ry = 0;
+      document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+      function tick() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(tick); }
+      tick();
+      var sel = 'a, button, input, textarea, [role="button"], .card, .service-card, .approach-item, .draw-toggle, .hero-cta, .form-submit';
+      document.addEventListener('mouseover', function(e) { var t = e.target.closest(sel); if (t) { ring.classList.add('hover'); dot.classList.add('hover'); } });
+      document.addEventListener('mouseout', function(e) { var t = e.target.closest(sel); if (t) { ring.classList.remove('hover'); dot.classList.remove('hover'); } });
+    })();
   </script>
 </body>
 </html>
