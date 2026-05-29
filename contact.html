@@ -3,130 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KNUFF — Contact</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <title>Contact — KNUFF</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wdth,wght@75,300;75,400;75,600;75,700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #e5e5ea;
-      --glass-bg: rgba(255,255,255,0.15);
-      --glass-border: rgba(255,255,255,0.4);
-      --glass-shadow: rgba(0,0,0,0.1);
-      --glass-highlight: rgba(255,255,255,0.8);
-      --glass-caustic: rgba(255,255,255,0.4);
-      --font: 'Space Grotesk', system-ui, sans-serif;
-      --font-mono: 'DM Mono', monospace;
-      --text: #111; --text-secondary: rgba(0,0,0,0.5);
-      --nav-text: rgba(0,0,0,0.6);
-      --card-border: rgba(0,0,0,0.06);
-      --card-bg: rgba(255,255,255,0.5);
-      --header-blur: 50px;
+      --bg-primary: #000000;
+      --bg-secondary: #0B0B0B;
+      --bg-tertiary: #272A2A;
+      --text-primary: #FFFFFF;
+      --text-secondary: #CECECE;
+      --text-muted: #858585;
+      --accent: #CC6437;
+      --border: #FFFFFF;
+      --border-muted: rgba(255,255,255,0.12);
+      --border-subtle: rgba(255,255,255,0.06);
+      --font-condensed: 'Open Sans', sans-serif;
+      --font-body: 'Roboto Mono', monospace;
+      --text-caption: 11px;
+      --text-body: 14px;
+      --text-heading-lg: 24px;
+      --text-display: 32px;
+      --text-display-lg: clamp(32px, 5vw, 52px);
+      --radius-pill: 1440px;
+      --radius-subtle: 4px;
+      --radius-general: 10px;
+      --transition: 0.3s ease;
     }
-    [data-theme="dark"] {
-      --bg-color: #000000;
-      --glass-bg: rgba(30,30,35,0.45);
-      --glass-border: rgba(255,255,255,0.15);
-      --glass-shadow: rgba(0,0,0,0.8);
-      --glass-highlight: rgba(255,255,255,0.25);
-      --glass-caustic: rgba(255,255,255,0.05);
-      --text: #fff; --text-secondary: rgba(255,255,255,0.5);
-      --nav-text: rgba(255,255,255,0.5);
-      --card-border: rgba(255,255,255,0.06);
-      --card-bg: rgba(255,255,255,0.04);
+    [data-theme="light"] {
+      --bg-primary: #F2F2ED;
+      --bg-secondary: #FFFFFF;
+      --bg-tertiary: #E8E8E3;
+      --text-primary: #0B0B0B;
+      --text-secondary: #555555;
+      --text-muted: #999999;
+      --accent: #CC6437;
+      --border: #0B0B0B;
+      --border-muted: rgba(0,0,0,0.12);
+      --border-subtle: rgba(0,0,0,0.06);
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
-      font-family: var(--font); color: var(--text);
-      overflow-x: hidden; transition: color 0.3s;
-      background: var(--bg-color); transition: background 0.5s;
-      cursor: none;
+      background: var(--bg-primary); color: var(--text-primary);
+      font-family: var(--font-body); font-size: var(--text-body);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
     }
-    a, button, input, textarea, [role="button"] { cursor: none; }
-    .cursor-ring {
-      position: fixed; top: 0; left: 0; z-index: 9999;
-      width: 28px; height: 28px; border-radius: 50%;
-      border: 1px solid var(--text);
-      pointer-events: none;
-      transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, background 0.3s ease;
-      transform: translate(-50%, -50%);
-      will-change: transform;
-    }
-    .cursor-ring.hover { width: 44px; height: 44px; border-color: var(--text-secondary); }
-    .cursor-dot {
-      position: fixed; top: 0; left: 0; z-index: 10000;
-      width: 4px; height: 4px; border-radius: 50%;
-      background: var(--text);
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      transition: width 0.25s ease, height 0.25s ease;
-    }
-    .cursor-dot.hover { width: 2px; height: 2px; }
+    a { text-decoration: none; color: inherit; }
+    input, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+
     .page-transition {
       position: fixed; inset: 0; z-index: 10001;
       background: #000; pointer-events: none;
       opacity: 0; transition: opacity 0.35s ease;
     }
     .page-transition.active { opacity: 1; }
-    a { text-decoration: none; color: inherit; }
 
-    .liquid-nav {
+    .nav {
       position: fixed; top: 24px; left: 24px; right: 24px; z-index: 100;
       display: flex; align-items: center; justify-content: center;
-      padding: 6px 16px;
-      border-radius: 99px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(var(--header-blur)) saturate(200%);
-      -webkit-backdrop-filter: blur(var(--header-blur)) saturate(200%);
-      box-shadow:
-        0 40px 80px -20px var(--glass-shadow),
-        0 10px 30px -10px var(--glass-shadow),
-        inset 0 2px 3px -1px var(--glass-highlight),
-        inset 0 -2px 4px -1px var(--glass-caustic),
-        inset 0 0 0 1px var(--glass-border);
-      transition: all 0.5s ease;
+      padding: 8px 20px;
     }
-    .liquid-nav .brand {
-      position: absolute; left: 16px; z-index: 2;
-      color: var(--text); font-family: var(--font-mono);
-      font-size: 0.8rem; font-weight: 500; letter-spacing: 0.02em;
-      padding: 6px 8px; height: 36px; display: flex; align-items: center;
+    .nav .brand {
+      position: absolute; left: 20px; z-index: 2;
+      font-family: var(--font-condensed); font-stretch: 75%;
+      font-size: 14px; font-weight: 600; letter-spacing: -0.02em;
+      color: var(--text-primary); text-transform: uppercase;
+      padding: 6px 0;
     }
     .nav-links {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
+      display: flex; align-items: center; gap: 4px;
     }
     .nav-links a {
-      position: relative; z-index: 1;
-      background: transparent; border: none;
-      padding: 6px 14px; height: 36px; border-radius: 99px;
-      font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500;
-      letter-spacing: 0.02em; color: var(--nav-text); cursor: pointer;
-      display: flex; align-items: center; gap: 4px;
-      transition: color 0.3s ease;
+      font-family: var(--font-condensed); font-stretch: 75%;
+      font-size: 13px; font-weight: 400; letter-spacing: -0.02em;
+      color: var(--text-secondary); text-transform: uppercase;
+      padding: 6px 16px; border-radius: var(--radius-pill);
+      border: 1px solid transparent;
+      transition: color var(--transition), background var(--transition), border-color var(--transition);
+      display: flex; align-items: center; gap: 6px;
     }
-    .nav-links a.active, .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover { color: var(--text-primary); border-color: var(--border-muted); }
+    .nav-links a.active, .nav-links a.active:hover {
+      color: var(--text-primary); background: var(--bg-secondary);
+      border-color: var(--border-muted);
+    }
 
     .theme-fab {
       position: fixed; bottom: 32px; right: 32px; z-index: 200;
-      width: 42px; height: 42px; border-radius: 50%;
-      background: var(--glass-bg);
-      backdrop-filter: blur(24px) saturate(200%);
-      -webkit-backdrop-filter: blur(24px) saturate(200%);
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 8px 24px -8px var(--glass-shadow);
-      color: var(--nav-text); cursor: pointer;
+      width: 40px; height: 40px; border-radius: var(--radius-pill);
+      background: transparent; border: 1px solid var(--border-muted);
+      color: var(--text-secondary); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      transition: color 0.3s ease, background 0.3s ease;
+      transition: color var(--transition), background var(--transition), border-color var(--transition);
     }
-    .theme-fab:hover { color: var(--text); background: var(--card-bg); }
-    .icon-wrap {
-      position: relative; width: 18px; height: 18px; pointer-events: none;
-    }
+    .theme-fab:hover { color: var(--text-primary); border-color: var(--border); background: var(--bg-secondary); }
+    .icon-wrap { position: relative; width: 16px; height: 16px; pointer-events: none; }
     .icon-wrap svg {
       position: absolute; top: 0; left: 0;
       transition: transform 0.5s cubic-bezier(0.34,1.2,0.64,1), opacity 0.4s ease;
-      stroke-width: 2.2;
+      stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
     }
     .sun { opacity: 1; transform: rotate(0deg) scale(1); }
     .moon { opacity: 0; transform: rotate(-90deg) scale(0); }
@@ -134,273 +111,177 @@
     [data-theme="dark"] .moon { opacity: 1; transform: rotate(0deg) scale(1); }
 
     .page {
-      min-height: 100vh;
-      padding: 140px 60px 60px;
+      max-width: 960px; margin: 0 auto;
+      padding: 140px 24px 60px;
     }
-
-    .hero-contact {
-      min-height: 70vh;
-      display: flex; flex-direction: column;
-      justify-content: center;
-      padding: 60px 0 80px;
+    .page-hero {
+      margin-bottom: 60px;
     }
-    .hero-contact .pre {
-      font-family: var(--font-mono); font-size: 0.7rem;
-      font-weight: 500; color: var(--text-secondary);
-      margin-bottom: 1.5rem; letter-spacing: 0.05em;
+    .page-hero h1 {
+      font-family: var(--font-condensed); font-stretch: 75%;
+      font-size: var(--text-display-lg); font-weight: 700;
+      line-height: 1.05; letter-spacing: -0.02em;
+      text-transform: uppercase; margin-bottom: 16px;
     }
-    .hero-contact h1 {
-      font-size: clamp(48px, 8vw, 96px);
-      font-weight: 700; line-height: 0.92; letter-spacing: -0.04em;
-      max-width: 900px;
-    }
-    .hero-contact .tagline {
-      font-size: 1rem; line-height: 1.7;
-      color: var(--text-secondary);
-      max-width: 520px; margin-top: 2rem;
-    }
-
-    .reveal {
-      opacity: 0; transform: translateY(30px);
-      transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1),
-                  transform 0.8s cubic-bezier(0.22,1,0.36,1);
-    }
-    .reveal.visible {
-      opacity: 1; transform: translateY(0);
-    }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-    .reveal-delay-4 { transition-delay: 0.4s; }
-
-    .section-block {
-      max-width: 1100px; margin: 0 auto;
-      padding: 100px 0;
-    }
-
-    .section-label {
-      font-family: var(--font-mono); font-size: 0.65rem;
-      font-weight: 500; letter-spacing: 0.04em;
-      color: var(--text-secondary); margin-bottom: 1.5rem;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .section-label::before {
-      content: ''; display: inline-block;
-      width: 20px; height: 1px; background: var(--text-secondary);
+    .page-hero p {
+      font-family: var(--font-body);
+      font-size: var(--text-body); line-height: 1.7;
+      color: var(--text-secondary); max-width: 600px;
     }
 
     .contact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
     }
-
-    .contact-info { display: flex; flex-direction: column; gap: 2rem; }
-    .contact-item {
-      border-top: 1px solid var(--card-border);
-      padding-top: 1.5rem;
-    }
+    .contact-info { display: flex; flex-direction: column; gap: 24px; }
+    .contact-item {}
     .contact-item .label {
-      font-family: var(--font-mono); font-size: 0.6rem;
-      font-weight: 500; color: var(--text-secondary);
-      letter-spacing: 0.04em; margin-bottom: 0.5rem;
+      font-family: var(--font-condensed); font-stretch: 75%;
+      font-size: var(--text-caption); font-weight: 600;
+      letter-spacing: -0.02em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 4px;
     }
-    .contact-item .value {
-      font-size: 1.2rem; font-weight: 500;
-      line-height: 1.4;
+    .contact-item a, .contact-item .value {
+      font-size: var(--text-body); color: var(--text-primary);
+      transition: color var(--transition);
     }
-    .contact-item .value a { transition: opacity 0.2s; }
-    .contact-item .value a:hover { opacity: 0.6; }
+    .contact-item a:hover { color: var(--text-secondary); }
 
-    .contact-form {
-      display: flex; flex-direction: column; gap: 1.25rem;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group { margin-bottom: 20px; }
     .form-group label {
-      font-family: var(--font-mono); font-size: 0.6rem;
-      font-weight: 500; color: var(--text-secondary);
-      letter-spacing: 0.04em;
+      display: block;
+      font-family: var(--font-condensed); font-stretch: 75%;
+      font-size: var(--text-caption); font-weight: 600;
+      letter-spacing: -0.02em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 6px;
     }
     .form-group input,
     .form-group textarea {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      font-family: var(--font); font-size: 0.85rem;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s;
+      width: 100%; background: transparent;
+      border: 1px solid var(--border-muted);
+      border-radius: var(--radius-subtle);
+      padding: 10px 14px; font-size: var(--text-body);
+      color: var(--text-primary); outline: none;
+      transition: border-color var(--transition);
     }
     .form-group input:focus,
     .form-group textarea:focus {
-      border-color: var(--text-secondary);
+      border-color: var(--border);
     }
     .form-group textarea { min-height: 120px; resize: vertical; }
     .form-submit {
-      background: var(--text); color: var(--bg-color);
-      border: none; border-radius: 8px;
-      padding: 0.85rem 2rem;
-      font-family: var(--font-mono); font-size: 0.7rem;
-      font-weight: 500; letter-spacing: 0.04em;
-      cursor: pointer; transition: opacity 0.2s;
-      width: fit-content;
+      font-family: var(--font-condensed); font-stretch: 75%;
+      font-size: 13px; font-weight: 400; letter-spacing: -0.02em;
+      text-transform: uppercase; color: var(--text-primary);
+      background: transparent; border: 1px solid var(--border-muted);
+      padding: 10px 24px; border-radius: var(--radius-pill);
+      cursor: pointer; transition: background var(--transition), border-color var(--transition);
     }
-    .form-submit:hover { opacity: 0.75; }
+    .form-submit:hover { background: var(--bg-secondary); border-color: var(--border); }
 
     .footer {
-      max-width: 1100px; margin: 0 auto;
-      padding: 40px 0 60px;
-      border-top: 1px solid var(--card-border);
+      padding: 24px 0;
+      border-top: 1px solid var(--border-subtle);
       display: flex; justify-content: space-between; align-items: center;
-      font-size: 11px; color: var(--text-secondary);
+      font-family: var(--font-body); font-size: var(--text-caption);
+      color: var(--text-muted); margin-top: 60px;
     }
-    .footer a { color: var(--text); }
+    .footer a { color: var(--text-secondary); transition: color var(--transition); }
+    .footer a:hover { color: var(--text-primary); }
     .footer-links { display: flex; gap: 20px; }
-    .footer-links a { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
 
-    @media (max-width: 900px) {
-      .liquid-nav { left: 16px; right: 16px; top: 16px; padding: 4px 10px; }
-      .liquid-nav .brand { font-size: 0.65rem; padding: 4px 4px; height: 32px; left: 8px; }
-      .nav-links a { font-size: 0.65rem; padding: 4px 8px; height: 32px; }
-      .nav-links { gap: 2px; }
-      .theme-fab { bottom: 20px; right: 20px; width: 38px; height: 38px; }
-      .page { padding: 120px 20px 40px; }
-      .hero-contact { min-height: auto; padding: 40px 0 60px; }
-      .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    @media (max-width: 768px) {
+      .nav { top: 16px; left: 12px; right: 12px; padding: 6px 12px; }
+      .nav .brand { font-size: 12px; left: 12px; }
+      .nav-links a { font-size: 11px; padding: 4px 10px; gap: 4px; }
+      .theme-fab { bottom: 20px; right: 20px; width: 36px; height: 36px; }
+      .page { padding: 120px 16px 40px; }
+      .contact-grid { grid-template-columns: 1fr; gap: 32px; }
       .footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .nav-links a span { display: none; }
     }
   </style>
 </head>
 <body>
   <div class="page-transition" id="pageTransition"></div>
-  <div class="cursor-ring" id="cursorRing"></div>
-  <div class="cursor-dot" id="cursorDot"></div>
 
-  <nav class="liquid-nav" id="liquidNav">
+  <nav class="nav" id="nav">
     <span class="brand">KNUFF</span>
     <div class="nav-links">
-      <a href="index-new.html"><span>[&nbsp;&nbsp;&nbsp;]</span> Home</a>
-      <a href="projects.html"><span>[&nbsp;&nbsp;&nbsp;]</span> Works</a>
-      <a href="about.html"><span>[&nbsp;&nbsp;&nbsp;]</span> About</a>
+      <a href="index.html"><span>[&nbsp;&nbsp;]</span> Home</a>
+      <a href="projects.html"><span>[&nbsp;&nbsp;]</span> Works</a>
+      <a href="about.html"><span>[&nbsp;&nbsp;]</span> About</a>
       <a href="contact.html" class="active"><span>[●]</span> Contact</a>
     </div>
   </nav>
 
   <button class="theme-fab" id="modeToggle">
     <div class="icon-wrap">
-      <svg class="sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="5"></circle>
-        <line x1="12" y1="1" x2="12" y2="3"></line>
-        <line x1="12" y1="21" x2="12" y2="23"></line>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-        <line x1="1" y1="12" x2="3" y2="12"></line>
-        <line x1="21" y1="12" x2="23" y2="12"></line>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      <svg class="sun" width="16" height="16" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
       </svg>
-      <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      <svg class="moon" width="16" height="16" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
       </svg>
     </div>
   </button>
 
   <div class="page">
-    <section class="hero-contact">
-      <p class="pre reveal visible">Get in touch</p>
-      <h1 class="reveal visible reveal-delay-1">
-        Let&rsquo;s make<br>
-        something<br>
-        meaningful
-      </h1>
-      <p class="tagline reveal visible reveal-delay-2">
-        Have a project in mind or just want to say hello?
-        I&rsquo;d love to hear from you.
-      </p>
-    </section>
+    <div class="page-hero">
+      <h1>Contact</h1>
+      <p>Have a project in mind or just want to start a conversation? I'm always open to new work and interesting collaborations.</p>
+    </div>
 
-    <section class="section-block">
-      <div class="section-label reveal">Contact</div>
-      <div class="contact-grid">
-        <div class="contact-info">
-          <div class="contact-item reveal reveal-delay-1">
-            <div class="label">Email</div>
-            <div class="value"><a href="mailto:sayhi@knuff.studio">sayhi@knuff.studio</a></div>
-          </div>
-          <div class="contact-item reveal reveal-delay-2">
-            <div class="label">Based in</div>
-            <div class="value">Remote — available worldwide</div>
-          </div>
-          <div class="contact-item reveal reveal-delay-3">
-            <div class="label">Social</div>
-            <div class="value">
-              <a href="#" style="margin-right:1rem;">Twitter / X</a>
-              <a href="#">Instagram</a>
-            </div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="contact-item">
+          <div class="label">Email</div>
+          <a href="mailto:hello@knuff.studio">hello@knuff.studio</a>
+        </div>
+        <div class="contact-item">
+          <div class="label">Social</div>
+          <div class="value">
+            <a href="#" target="_blank">GitHub</a> / <a href="#" target="_blank">X</a> / <a href="#" target="_blank">LinkedIn</a>
           </div>
         </div>
-        <form class="contact-form reveal reveal-delay-4" onsubmit="event.preventDefault(); alert('Thanks for reaching out! (Form handler not yet connected)');">
-          <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" id="name" placeholder="Your name" required>
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" placeholder="your@email.com" required>
-          </div>
-          <div class="form-group">
-            <label for="message">Message</label>
-            <textarea id="message" placeholder="Tell me about your project..." required></textarea>
-          </div>
-          <button type="submit" class="form-submit">Send message</button>
-        </form>
       </div>
-    </section>
 
-    <footer class="footer">
+      <form id="contactForm">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" required></textarea>
+        </div>
+        <button type="submit" class="form-submit">Send Message</button>
+      </form>
+    </div>
+
+    <div class="footer">
       <div>&copy; 2026 KNUFF</div>
       <div class="footer-links">
-        <a href="projects.html">Projects</a>
+        <a href="projects.html">Works</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </div>
-      <a href="mailto:sayhi@knuff.studio">sayhi@knuff.studio</a>
-    </footer>
+      <a href="mailto:hello@knuff.studio">hello@knuff.studio</a>
+    </div>
   </div>
-
-  <script>
-    (function() {
-      var stored = localStorage.getItem('knuff-theme');
-      if (stored === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-    })();
-
-    (function() {
-      var html = document.documentElement;
-      var btn = document.getElementById('modeToggle');
-      if (btn) {
-        btn.addEventListener('click', function() {
-          var isDark = html.getAttribute('data-theme') === 'dark';
-          html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-          localStorage.setItem('knuff-theme', isDark ? 'light' : 'dark');
-        });
-      }
-    })();
-
-    document.addEventListener("DOMContentLoaded", function() {
-      var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-
-      document.querySelectorAll('.reveal').forEach(function(el) {
-        observer.observe(el);
-      });
-    });
-  </script>
 
   <script>
     (function() {
@@ -417,20 +298,29 @@
       });
     })();
   </script>
+
   <script>
     (function() {
-      var ring = document.getElementById('cursorRing');
-      var dot = document.getElementById('cursorDot');
-      if (!ring || !dot) return;
-      if (window.matchMedia('(pointer: coarse)').matches) { ring.style.display = 'none'; dot.style.display = 'none'; return; }
-      var mx = 0, my = 0, rx = 0, ry = 0;
-      document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
-      function tick() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(tick); }
-      tick();
-      var sel = 'a, button, input, textarea, [role="button"], .card, .service-card, .approach-item, .draw-toggle, .hero-cta, .form-submit';
-      document.addEventListener('mouseover', function(e) { var t = e.target.closest(sel); if (t) { ring.classList.add('hover'); dot.classList.add('hover'); } });
-      document.addEventListener('mouseout', function(e) { var t = e.target.closest(sel); if (t) { ring.classList.remove('hover'); dot.classList.remove('hover'); } });
+      var stored = localStorage.getItem('knuff-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', stored);
+      var btn = document.getElementById('modeToggle');
+      if (btn) {
+        btn.addEventListener('click', function() {
+          var html = document.documentElement;
+          var isDark = html.getAttribute('data-theme') === 'dark';
+          var next = isDark ? 'light' : 'dark';
+          html.setAttribute('data-theme', next);
+          localStorage.setItem('knuff-theme', next);
+        });
+      }
     })();
+  </script>
+
+  <script>
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Thanks for your message. I\'ll get back to you soon.');
+    });
   </script>
 </body>
 </html>
