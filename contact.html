@@ -42,8 +42,6 @@
       --border-muted: rgba(0,0,0,0.12);
       --border-subtle: rgba(0,0,0,0.06);
     }
-    [data-theme="light"] .nav { background: rgba(242,242,237,0.7); }
-    [data-theme="light"] .theme-fab { background: rgba(242,242,237,0.8); }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
@@ -64,22 +62,19 @@
     .page-transition.active { opacity: 1; }
 
     .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 40px;
-      background: rgba(0,0,0,0.55);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-bottom: 1px solid var(--border-subtle);
+      position: fixed; top: 24px; left: 24px; right: 24px; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      padding: 8px 20px;
     }
     .nav .brand {
+      position: absolute; left: 20px; z-index: 2;
       font-family: var(--font-condensed); font-stretch: 75%;
-      font-size: 15px; font-weight: 700; letter-spacing: -0.02em;
+      font-size: 14px; font-weight: 600; letter-spacing: -0.02em;
       color: var(--text-primary); text-transform: uppercase;
-      text-decoration: none;
+      padding: 6px 0;
     }
     .nav-links {
-      display: flex; align-items: center; gap: 6px;
+      display: flex; align-items: center; gap: 4px;
     }
     .nav-links a {
       font-family: var(--font-condensed); font-stretch: 75%;
@@ -89,7 +84,6 @@
       border: 1px solid transparent;
       transition: color var(--transition), background var(--transition), border-color var(--transition);
       display: flex; align-items: center; gap: 6px;
-      text-decoration: none;
     }
     .nav-links a:hover { color: var(--text-primary); border-color: var(--border-muted); }
     .nav-links a.active, .nav-links a.active:hover {
@@ -100,15 +94,12 @@
     .theme-fab {
       position: fixed; bottom: 32px; right: 32px; z-index: 200;
       width: 40px; height: 40px; border-radius: var(--radius-pill);
-      background: rgba(0,0,0,0.55);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--border-muted);
+      background: transparent; border: 1px solid var(--border-muted);
       color: var(--text-secondary); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      transition: color var(--transition), border-color var(--transition);
+      transition: color var(--transition), background var(--transition), border-color var(--transition);
     }
-    .theme-fab:hover { color: var(--text-primary); border-color: var(--border); }
+    .theme-fab:hover { color: var(--text-primary); border-color: var(--border); background: var(--bg-secondary); }
     .icon-wrap { position: relative; width: 16px; height: 16px; pointer-events: none; }
     .icon-wrap svg {
       position: absolute; top: 0; left: 0;
@@ -200,18 +191,16 @@
     .footer-links { display: flex; gap: 20px; }
 
     @media (max-width: 768px) {
-      .nav { padding: 10px 20px; }
-      .nav .brand { font-size: 13px; }
-      .nav-links a { font-size: 11px; padding: 4px 12px; gap: 4px; }
+      .nav { top: 16px; left: 12px; right: 12px; padding: 6px 12px; }
+      .nav .brand { font-size: 12px; left: 12px; }
+      .nav-links a { font-size: 11px; padding: 4px 10px; gap: 4px; }
       .theme-fab { bottom: 20px; right: 20px; width: 36px; height: 36px; }
-      .page { padding: 100px 16px 40px; }
+      .page { padding: 120px 16px 40px; }
       .contact-grid { grid-template-columns: 1fr; gap: 32px; }
       .footer { flex-direction: column; gap: 12px; text-align: center; }
     }
     @media (max-width: 480px) {
       .nav-links a span { display: none; }
-      .nav { padding: 10px 16px; }
-      .nav-links a { padding: 4px 10px; }
     }
   </style>
 </head>
@@ -219,7 +208,7 @@
   <div class="page-transition" id="pageTransition"></div>
 
   <nav class="nav" id="nav">
-    <a href="index.html" class="brand">KNUFF</a>
+    <span class="brand">KNUFF</span>
     <div class="nav-links">
       <a href="index.html"><span>[&nbsp;&nbsp;]</span> Home</a>
       <a href="projects.html"><span>[&nbsp;&nbsp;]</span> Works</a>
