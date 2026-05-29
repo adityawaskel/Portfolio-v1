@@ -1,333 +1,390 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KNUFF</title>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wdth,wght@75,300;75,400;75,600;75,700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <title>KNUFF — Creative Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
   <style>
-    :root {
-      --bg-primary: #000000;
-      --bg-secondary: #0B0B0B;
-      --bg-tertiary: #272A2A;
-      --text-primary: #FFFFFF;
-      --text-secondary: #CECECE;
-      --text-muted: #858585;
-      --accent: #CC6437;
-      --border: #FFFFFF;
-      --border-muted: rgba(255,255,255,0.12);
-      --border-subtle: rgba(255,255,255,0.06);
-      --font-condensed: 'Open Sans', sans-serif;
-      --font-body: 'Roboto Mono', monospace;
-      --text-caption: 11px;
-      --text-body: 14px;
-      --text-heading: 20px;
-      --text-heading-lg: 24px;
-      --text-display: 32px;
-      --text-display-lg: clamp(36px, 6vw, 62px);
-      --radius-pill: 1440px;
-      --radius-subtle: 4px;
-      --radius-general: 10px;
-      --transition: 0.3s ease;
-    }
-    [data-theme="light"] {
-      --bg-primary: #F2F2ED;
-      --bg-secondary: #FFFFFF;
-      --bg-tertiary: #E8E8E3;
-      --text-primary: #0B0B0B;
-      --text-secondary: #555555;
-      --text-muted: #999999;
-      --accent: #CC6437;
-      --border: #0B0B0B;
-      --border-muted: rgba(0,0,0,0.12);
-      --border-subtle: rgba(0,0,0,0.06);
-    }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html.dark { --bg: #000; --text: #e5e5e5; --muted: #555; --border: rgba(255,255,255,0.06); --accent: #dc2626; --loader-bg: #000; }
+    html.light { --bg: #f5f5f0; --text: #1a1a1a; --muted: #999; --border: rgba(0,0,0,0.07); --accent: #dc2626; --loader-bg: #f5f5f0; }
+
     html { scroll-behavior: smooth; }
     body {
-      background: var(--bg-primary); color: var(--text-primary);
-      font-family: var(--font-body); font-size: var(--text-body);
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-      transition: background var(--transition), color var(--transition);
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+      overflow: hidden; height: 100vh; width: 100vw;
     }
+    ::selection { background: var(--accent); color: #fff; }
     a { text-decoration: none; color: inherit; }
-    img { display: block; max-width: 100%; }
 
-    .page-transition {
-      position: fixed; inset: 0; z-index: 10001;
-      background: #000; pointer-events: none;
-      opacity: 0; transition: opacity 0.35s ease;
+    /* Loading screen */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--loader-bg);
+      transition: opacity 0.8s ease, visibility 0.8s ease;
     }
-    .page-transition.active { opacity: 1; }
+    #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-asterisk {
+      width: 36px; height: 36px;
+      animation: loader-spin 1.6s linear infinite;
+    }
+    .loader-asterisk polygon { fill: var(--accent); }
+    .loader-bar {
+      margin-top: 2rem; width: 120px; height: 1px;
+      background: var(--border); overflow: hidden; position: relative;
+    }
+    .loader-bar::after {
+      content: ''; position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%; background: var(--accent);
+      animation: loader-sweep 1.4s ease-in-out infinite;
+    }
+    @keyframes loader-spin { to { transform: rotate(360deg); } }
+    @keyframes loader-sweep {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
+
+    .toggle-mode {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 100;
+      background: var(--border); border: none; color: var(--text);
+      padding: 0.5rem 1rem; font-family: 'DM Mono', monospace;
+      font-size: 0.6rem; cursor: pointer; text-transform: uppercase;
+      letter-spacing: 0.12em; border-radius: 2px; transition: 0.3s;
+      backdrop-filter: blur(12px);
+    }
+    .toggle-mode:hover { background: var(--accent); color: #fff; }
+
+    .scanlines {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    }
+
+    #fixed-bg { position: fixed; inset: 0; z-index: 0; }
+    #fixed-bg canvas { width: 100%; height: 100%; display: block; }
 
     .nav {
-      position: fixed; top: 24px; left: 24px; right: 24px; z-index: 100;
-      display: flex; align-items: center; justify-content: center;
-      padding: 8px 20px;
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+      padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center;
+      mix-blend-mode: difference;
     }
-    .nav .brand {
-      position: absolute; left: 20px; z-index: 2;
-      font-family: var(--font-condensed); font-stretch: 75%;
-      font-size: 14px; font-weight: 600; letter-spacing: -0.02em;
-      color: var(--text-primary); text-transform: uppercase;
-      padding: 6px 0;
+    .nav-logo {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.15em; color: #fff;
     }
-    .nav-links {
-      display: flex; align-items: center; gap: 4px;
-    }
+    .nav-links { display: flex; gap: 2rem; }
     .nav-links a {
-      font-family: var(--font-condensed); font-stretch: 75%;
-      font-size: 13px; font-weight: 400; letter-spacing: -0.02em;
-      color: var(--text-secondary); text-transform: uppercase;
-      padding: 6px 16px; border-radius: var(--radius-pill);
-      border: 1px solid transparent;
-      transition: color var(--transition), background var(--transition), border-color var(--transition);
-      display: flex; align-items: center; gap: 6px;
+      font-family: 'DM Mono', monospace; font-size: 0.6rem;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.5); transition: color 0.3s; position: relative;
     }
-    .nav-links a:hover { color: var(--text-primary); border-color: var(--border-muted); }
-    .nav-links a.active, .nav-links a.active:hover {
-      color: var(--text-primary); background: var(--bg-secondary);
-      border-color: var(--border-muted);
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 1px; background: var(--accent);
+      transition: width 0.35s cubic-bezier(.16,1,.3,1);
     }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover::after { width: 100%; }
 
-    .theme-fab {
-      position: fixed; bottom: 32px; right: 32px; z-index: 200;
-      width: 40px; height: 40px; border-radius: var(--radius-pill);
-      background: transparent; border: 1px solid var(--border-muted);
-      color: var(--text-secondary); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: color var(--transition), background var(--transition), border-color var(--transition);
+    .side-text {
+      position: fixed; z-index: 20; pointer-events: none;
+      font-family: 'Inter', sans-serif;
+      mix-blend-mode: difference; color: #fff;
     }
-    .theme-fab:hover { color: var(--text-primary); border-color: var(--border); background: var(--bg-secondary); }
-    .icon-wrap { position: relative; width: 16px; height: 16px; pointer-events: none; }
-    .icon-wrap svg {
-      position: absolute; top: 0; left: 0;
-      transition: transform 0.5s cubic-bezier(0.34,1.2,0.64,1), opacity 0.4s ease;
-      stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    .side-left { left: 2.5rem; top: 50%; transform: translateY(-50%); text-align: left; }
+    .side-right { right: 2.5rem; top: 50%; transform: translateY(-50%); text-align: right; }
+    .side-label {
+      font-family: 'DM Mono', monospace; font-size: 0.55rem;
+      text-transform: uppercase; letter-spacing: 0.15em;
+      color: #fff; margin-bottom: 0.75rem; display: block; opacity: 0.7;
     }
-    .sun { opacity: 1; transform: rotate(0deg) scale(1); }
-    .moon { opacity: 0; transform: rotate(-90deg) scale(0); }
-    [data-theme="dark"] .sun { opacity: 0; transform: rotate(90deg) scale(0); }
-    [data-theme="dark"] .moon { opacity: 1; transform: rotate(0deg) scale(1); }
+    .side-title {
+      font-size: clamp(2.2rem, 5vw, 4.5rem);
+      font-weight: 800; line-height: 0.85;
+      text-transform: uppercase; letter-spacing: -0.03em;
+      color: #fff;
+    }
+    .side-sub {
+      font-size: 0.7rem; font-weight: 400;
+      color: #fff; line-height: 1.6;
+      margin-top: 1rem; max-width: 200px;
+    }
+    .side-right .side-sub { margin-left: auto; }
 
-    .hero {
-      min-height: 100vh; position: relative;
-      display: flex; flex-direction: column;
-      padding: 140px 60px 60px;
-      overflow: hidden;
+    .asterisk-wrap {
+      position: fixed; z-index: 15; pointer-events: none;
+      transform: translate(-50%, -50%);
     }
-    #pixelCanvas {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: 1;
+    .asterisk-svg {
+      width: 56px; height: 56px;
+      animation: spin-asterisk 14s linear infinite;
     }
-    .hero-content {
-      position: relative; z-index: 2;
-      flex: 1; display: flex; flex-direction: column;
-      justify-content: center; max-width: 720px;
-    }
-    .hero-content h1 {
-      font-family: var(--font-condensed); font-stretch: 75%;
-      font-size: var(--text-display-lg); font-weight: 700;
-      line-height: 1.05; letter-spacing: -0.02em;
-      text-transform: uppercase; margin-bottom: 24px;
-    }
-    .hero-content p {
-      font-family: var(--font-body);
-      font-size: var(--text-body); line-height: 1.6;
-      color: var(--text-secondary); max-width: 480px;
-      margin-bottom: 32px;
-    }
-    .hero-cta {
-      display: inline-flex; align-items: center; width: fit-content;
-      font-family: var(--font-condensed); font-stretch: 75%;
-      font-size: 13px; font-weight: 400; letter-spacing: -0.02em;
-      text-transform: uppercase; color: var(--text-primary);
-      border: 1px solid var(--border-muted); padding: 10px 24px;
-      border-radius: var(--radius-pill);
-      transition: background var(--transition), border-color var(--transition);
-    }
-    .hero-cta:hover { background: var(--bg-secondary); border-color: var(--border); }
+    .asterisk-svg polygon { fill: var(--accent); }
+    @keyframes spin-asterisk { to { transform: rotate(360deg); } }
 
-    .footer {
-      position: relative; z-index: 2;
-      padding: 24px 60px;
-      border-top: 1px solid var(--border-subtle);
-      display: flex; justify-content: space-between; align-items: center;
-      font-family: var(--font-body); font-size: var(--text-caption);
-      color: var(--text-muted);
+    .bottom-cta {
+      position: fixed; bottom: 2rem; left: 2.5rem; z-index: 20;
     }
-    .footer a { color: var(--text-secondary); transition: color var(--transition); }
-    .footer a:hover { color: var(--text-primary); }
-    .footer-links { display: flex; gap: 20px; }
+    .bottom-cta a {
+      font-family: 'DM Mono', monospace; font-size: 0.6rem;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--muted); transition: color 0.3s; position: relative;
+      padding-bottom: 2px;
+    }
+    .bottom-cta a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 1px; background: var(--accent);
+      transform: scaleX(0); transform-origin: right;
+      transition: transform 0.4s cubic-bezier(.16,1,.3,1);
+    }
+    .bottom-cta a:hover { color: var(--text); }
+    .bottom-cta a:hover::after { transform: scaleX(1); transform-origin: left; }
+
+    html.light .nav { mix-blend-mode: normal; }
+    html.light .nav-links a { color: rgba(0,0,0,0.4); }
+    html.light .nav-links a:hover { color: #000; }
+    html.light .nav-logo { color: #000; }
+    html.light .toggle-mode { color: var(--text); background: var(--border); }
 
     @media (max-width: 768px) {
-      .nav { top: 16px; left: 12px; right: 12px; padding: 6px 12px; }
-      .nav .brand { font-size: 12px; left: 12px; }
-      .nav-links a { font-size: 11px; padding: 4px 10px; gap: 4px; }
-      .theme-fab { bottom: 20px; right: 20px; width: 36px; height: 36px; }
-      .hero { padding: 120px 20px 40px; }
-      .hero-content p { max-width: 100%; }
-      .footer { flex-direction: column; gap: 12px; padding: 20px; text-align: center; }
+      .side-left { left: 1.25rem; }
+      .side-right { right: 1.25rem; }
+      .side-title { font-size: clamp(1.4rem, 6vw, 2.2rem); }
+      .side-label { font-size: 0.45rem; margin-bottom: 0.5rem; }
+      .side-sub { font-size: 0.55rem; max-width: 120px; margin-top: 0.5rem; }
+      .nav { padding: 1.25rem; }
+      .nav-links { gap: 1rem; }
+      .nav-links a { font-size: 0.45rem; }
+      .nav-logo { font-size: 0.55rem; }
+      .asterisk-svg { width: 32px; height: 32px; }
+      .bottom-cta { left: 1.25rem; bottom: 1.25rem; }
+      .bottom-cta a { font-size: 0.45rem; }
+      .toggle-mode { right: 1.25rem; bottom: 1.25rem; font-size: 0.45rem; padding: 0.35rem 0.7rem; }
     }
     @media (max-width: 480px) {
-      .nav-links a span { display: none; }
+      .side-title { font-size: clamp(1rem, 7vw, 1.6rem); }
+      .side-sub { display: none; }
+      .side-label { font-size: 0.4rem; }
+      .nav-links a { font-size: 0.4rem; }
+      .asterisk-svg { width: 24px; height: 24px; }
+    }
+    @media (max-height: 500px) {
+      .side-text { top: auto; bottom: 5rem; transform: none; }
+      .side-left { left: 1.25rem; }
+      .side-right { right: 1.25rem; }
+      .side-title { font-size: 1.4rem; }
     }
   </style>
 </head>
 <body>
-  <div class="page-transition" id="pageTransition"></div>
 
-  <nav class="nav" id="nav">
-    <span class="brand">KNUFF</span>
+  <div id="loader">
+    <svg class="loader-asterisk" viewBox="0 0 120 120">
+      <polygon points="60,4 70,44 112,52 72,66 86,110 60,80 34,110 48,66 8,52 50,44" />
+    </svg>
+    <div class="loader-bar"></div>
+  </div>
+
+  <div id="fixed-bg">
+    <canvas id="c"></canvas>
+  </div>
+
+  <div class="scanlines"></div>
+
+  <button class="toggle-mode" id="toggleMode">&#127769; Dark</button>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">KNUFF</a>
     <div class="nav-links">
-      <a href="index.html" class="active"><span>[●]</span> Home</a>
-      <a href="projects.html"><span>[&nbsp;&nbsp;]</span> Works</a>
-      <a href="about.html"><span>[&nbsp;&nbsp;]</span> About</a>
-      <a href="contact.html"><span>[&nbsp;&nbsp;]</span> Contact</a>
+      <a href="projects.html">Projects</a>
+      <a href="#">Archive</a>
+      <a href="#">Contact</a>
     </div>
   </nav>
 
-  <button class="theme-fab" id="modeToggle">
-    <div class="icon-wrap">
-      <svg class="sun" width="16" height="16" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="5"/>
-        <line x1="12" y1="1" x2="12" y2="3"/>
-        <line x1="12" y1="21" x2="12" y2="23"/>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-        <line x1="1" y1="12" x2="3" y2="12"/>
-        <line x1="21" y1="12" x2="23" y2="12"/>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-      </svg>
-      <svg class="moon" width="16" height="16" viewBox="0 0 24 24">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-      </svg>
-    </div>
-  </button>
+  <div class="side-text side-left">
+    <span class="side-label">Creative Developer</span>
+    <div class="side-title">Motion<br>Engineer</div>
+    <div class="side-sub">Crafting interactive systems with precision</div>
+  </div>
 
-  <section class="hero" id="hero">
-    <div class="hero-content">
-      <h1>Digital design<br>with motion</h1>
-      <p>KNUFF is the studio of a designer working across typography, identity, and interactive experiences.</p>
-      <a href="projects.html" class="hero-cta">View Projects</a>
-    </div>
-  </section>
+  <div class="side-text side-right">
+    <span class="side-label">KNUFF</span>
+    <div class="side-title">Motion<br>Design</div>
+    <div class="side-sub">Creative studio &mdash; San Francisco</div>
+  </div>
 
-  <footer class="footer">
-    <div>&copy; 2026 KNUFF</div>
-    <div class="footer-links">
-      <a href="projects.html">Works</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-    </div>
-    <a href="mailto:hello@knuff.studio">hello@knuff.studio</a>
-  </footer>
+  <div class="asterisk-wrap">
+    <svg class="asterisk-svg" viewBox="0 0 120 120">
+      <polygon points="60,4 70,44 112,52 72,66 86,110 60,80 34,110 48,66 8,52 50,44" />
+    </svg>
+  </div>
+
+  <div class="bottom-cta">
+    <a href="projects.html">Explore Selected Work &rarr;</a>
+  </div>
 
   <script>
-    (function() {
-      var t = document.getElementById('pageTransition');
-      if (t) t.classList.remove('active');
-      document.addEventListener('click', function(e) {
-        var link = e.target.closest('a[href]');
-        if (!link) return;
-        var href = link.getAttribute('href');
-        if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('http')) return;
-        e.preventDefault();
-        if (t) t.classList.add('active');
-        setTimeout(function() { window.location.href = href; }, 350);
+    var loader = document.getElementById('loader');
+    var c, ctx, W, H, asteriskWrap, img, boxes, m, xTo, yTo, sTo, props, T;
+    var started = false;
+
+    function startApp() {
+      if (started) return;
+      started = true;
+      c = document.querySelector('#c');
+      ctx = c.getContext('2d');
+      T = Math.PI * 2;
+      m = { x: 0, y: 0, s: 1.5, x2: 0, y2: 0 };
+      boxes = [];
+      asteriskWrap = document.querySelector('.asterisk-wrap');
+      xTo = gsap.quickTo(m, "x", { duration: 1, ease: "expo" });
+      yTo = gsap.quickTo(m, "y", { duration: 1, ease: "expo" });
+      sTo = gsap.quickTo(m, "s", { duration: 2, ease: "power2" });
+      props = {
+        img: 'hero.jpg',
+        boxSize: window.innerWidth < 480 ? 120 : window.innerWidth < 768 ? 100 : 80,
+        fade: false,
+        dots: true,
+        dotColor: getComputedStyle(document.documentElement).getPropertyValue('--text').trim() === '#e5e5e5' ? '#fff' : '#111'
+      };
+      ctx.fillStyle = props.dotColor;
+      img = new Image();
+      img.src = props.img;
+      img.onload = function() {
+        if (img.width === 0) return;
+        resizeCanvas();
+        buildGrid();
+        gsap.ticker.add(update);
+        loader.classList.add('hidden');
+      };
+      img.onerror = function() { loader.classList.add('hidden'); };
+
+      c.addEventListener('pointermove', function(e) {
+        if (!m) return;
+        m.x2 = e.clientX; m.y2 = e.clientY;
+        xTo(m.x2); yTo(m.y2);
       });
-    })();
-  </script>
 
-  <script>
-    (function() {
-      var canvas = document.createElement('canvas');
-      canvas.id = 'pixelCanvas';
-      var hero = document.getElementById('hero');
-      hero.insertBefore(canvas, hero.firstChild);
-
-      var ctx = canvas.getContext('2d');
-      var gap = 6, speed = 0.02;
-      var colors = ['#FFFFFF', '#858585', '#272A2A'];
-      var cols, rows, cells = [], mouseX = -1000, mouseY = -1000;
-
-      function resize() {
-        var w = hero.offsetWidth, h = hero.offsetHeight;
-        canvas.width = w; canvas.height = h;
-        cols = Math.ceil(w / gap);
-        rows = Math.ceil(h / gap);
-        cells = new Array(cols * rows);
-        for (var i = 0; i < cells.length; i++) cells[i] = 0;
-      }
-
-      function lerpColor(c1, c2, t) {
-        var r1 = parseInt(c1.slice(1,3), 16), g1 = parseInt(c1.slice(3,5), 16), b1 = parseInt(c1.slice(5,7), 16);
-        var r2 = parseInt(c2.slice(1,3), 16), g2 = parseInt(c2.slice(3,5), 16), b2 = parseInt(c2.slice(5,7), 16);
-        return 'rgb(' + Math.round(r1 + (r2 - r1) * t) + ',' + Math.round(g1 + (g2 - g1) * t) + ',' + Math.round(b1 + (b2 - b1) * t) + ')';
-      }
-
-      function getColor(b) {
-        if (b <= 0.5) return lerpColor(colors[2], colors[1], b * 2);
-        return lerpColor(colors[1], colors[0], (b - 0.5) * 2);
-      }
-
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        var radius = 3.5;
-        for (var i = 0; i < cells.length; i++) {
-          var col = i % cols, row = Math.floor(i / cols);
-          var cx = col * gap + gap / 2, cy = row * gap + gap / 2;
-          var dx = cx - mouseX, dy = cy - mouseY;
-          if (dx * dx + dy * dy < radius * radius * gap * gap) {
-            cells[i] = Math.min(1, cells[i] + 0.35);
-          }
-          cells[i] = Math.max(0, cells[i] - speed);
-          if (cells[i] > 0.01) {
-            ctx.fillStyle = getColor(cells[i]);
-            var size = gap * 0.55, r = size / 2;
-            var x = col * gap + (gap - size) / 2, y = row * gap + (gap - size) / 2;
-            ctx.beginPath();
-            ctx.moveTo(x + r, y);
-            ctx.arcTo(x + size, y, x + size, y + size, r);
-            ctx.arcTo(x + size, y + size, x, y + size, r);
-            ctx.arcTo(x, y + size, x, y, r);
-            ctx.arcTo(x, y, x + size, y, r);
-            ctx.closePath();
-            ctx.fill();
-          }
-        }
-        requestAnimationFrame(draw);
-      }
-
-      hero.addEventListener('mousemove', function(e) {
-        var rect = canvas.getBoundingClientRect();
-        mouseX = e.clientX - rect.left;
-        mouseY = e.clientY - rect.top;
+      window.addEventListener('resize', function() {
+        if (!ctx) return;
+        var oldSize = props.boxSize;
+        props.boxSize = window.innerWidth < 480 ? 120 : window.innerWidth < 768 ? 100 : 80;
+        if (props.boxSize !== oldSize) { resizeCanvas(); buildGrid(); return; }
+        resizeCanvas();
       });
-      hero.addEventListener('mouseleave', function() { mouseX = -1000; mouseY = -1000; });
-      window.addEventListener('resize', resize);
-      resize();
-      draw();
-    })();
-  </script>
+    }
 
-  <script>
-    (function() {
-      var stored = localStorage.getItem('knuff-theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', stored);
-      var btn = document.getElementById('modeToggle');
-      if (btn) {
-        btn.addEventListener('click', function() {
-          var html = document.documentElement;
-          var isDark = html.getAttribute('data-theme') === 'dark';
-          var next = isDark ? 'light' : 'dark';
-          html.setAttribute('data-theme', next);
-          localStorage.setItem('knuff-theme', next);
-        });
+    /* Theme — apply before canvas starts */
+    var toggleBtn = document.getElementById('toggleMode');
+    var htmlEl = document.documentElement;
+    if (localStorage.getItem('theme') === 'light') {
+      htmlEl.className = 'light';
+      toggleBtn.textContent = '\u2600\uFE0F Light';
+    }
+    toggleBtn.addEventListener('click', function() {
+      if (htmlEl.className === 'light') {
+        htmlEl.className = 'dark';
+        toggleBtn.textContent = '\uD83C\uDF19 Dark';
+        localStorage.setItem('theme', 'dark');
+        if (ctx) { props.dotColor = '#fff'; ctx.fillStyle = '#fff'; }
+      } else {
+        htmlEl.className = 'light';
+        toggleBtn.textContent = '\u2600\uFE0F Light';
+        localStorage.setItem('theme', 'light');
+        if (ctx) { props.dotColor = '#111'; ctx.fillStyle = '#111'; }
       }
-    })();
+    });
+
+    /* Preload: image + fonts */
+    var loaded = 0;
+    function checkReady() {
+      loaded++;
+      if (loaded >= 2) startApp();
+    }
+    var preloadImg = new Image();
+    preloadImg.src = 'hero.jpg';
+    preloadImg.onload = checkReady;
+    preloadImg.onerror = checkReady;
+    document.fonts.ready.then(checkReady);
+
+    /* Fallback: start after 4s no matter what */
+    setTimeout(function() { if (!started) startApp(); }, 4000);
+
+    function px(imgX, imgY) {
+      var imgA = 1376 / 691, canvasA = W / H, cx, cy, scale;
+      if (canvasA > imgA) { scale = H / 691; cx = W / 2; cy = 0; }
+      else { scale = W / 1376; cx = 0; cy = H / 2; }
+      return { x: cx + imgX * scale - (W / 2), y: cy + imgY * scale - (H / 2) };
+    }
+
+    function positionAsterisk() {
+      var p = px(710, 240);
+      asteriskWrap.style.left = (W / 2 + p.x) + 'px';
+      asteriskWrap.style.top = (H / 2 + p.y) + 'px';
+    }
+
+    function resizeCanvas() {
+      W = window.innerWidth; H = window.innerHeight;
+      c.width = W; c.height = H;
+      positionAsterisk();
+    }
+
+    function buildGrid() {
+      boxes = [];
+      var step = props.boxSize;
+      for (var x = 0; x <= W; x += step)
+        for (var y = 0; y <= H; y += step)
+          boxes.push({ x: x, y: y, d: 0, s: 0 });
+    }
+
+    function getImgSourceRect() {
+      var imgA = img.width / img.height, canvasA = W / H, sx, sy, sw, sh;
+      if (canvasA > imgA) {
+        sh = img.height; sw = img.height * canvasA;
+        sx = (img.width - sw) / 2; sy = 0;
+      } else {
+        sw = img.width; sh = img.width / canvasA;
+        sx = 0; sy = (img.height - sh) / 2;
+      }
+      return { sx: sx, sy: sy, sw: sw, sh: sh };
+    }
+
+    function update() {
+      var d = Math.hypot((m.x - m.x2), (m.y - m.y2));
+      sTo(d / Math.max(W, H) * 2);
+      ctx.clearRect(0, 0, W, H);
+      var src = getImgSourceRect();
+      ctx.drawImage(img, src.sx, src.sy, src.sw, src.sh, 0, 0, W, H);
+      for (var i = 0; i < boxes.length; i++) drawImg(boxes[i]);
+      if (props.dots)
+        for (var i = 0; i < boxes.length; i++) drawDots(boxes[i]);
+    }
+
+    function drawImg(cell) {
+      cell.d = Math.hypot((cell.x - m.x), (cell.y - m.y));
+      cell.s = 1 - gsap.utils.clamp(0, 1, cell.d / Math.max(W, H) / m.s);
+      if (cell.s < 0.001) return;
+      var boxScaled = props.boxSize * cell.s;
+      var src = getImgSourceRect();
+      var sx = src.sx + ((cell.x + boxScaled / 2) / W) * src.sw;
+      var sy = src.sy + ((cell.y + boxScaled / 2) / H) * src.sh;
+      var sw = ((props.boxSize - boxScaled) / W) * src.sw;
+      var sh = ((props.boxSize - boxScaled) / H) * src.sh;
+      ctx.drawImage(img, sx, sy, sw, sh, cell.x, cell.y, props.boxSize, props.boxSize);
+    }
+
+    function drawDots(cell) {
+      ctx.beginPath();
+      ctx.arc(cell.x, cell.y, props.boxSize * 0.15 * cell.s, 0, T);
+      ctx.fill();
+    }
   </script>
 </body>
 </html>
