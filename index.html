@@ -22,7 +22,6 @@
     ::selection { background: var(--accent); color: #fff; }
     a { text-decoration: none; color: inherit; }
 
-    /* Loading screen */
     #loader {
       position: fixed; inset: 0; z-index: 9999;
       display: flex; flex-direction: column;
@@ -72,24 +71,23 @@
     .nav {
       position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
       padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center;
-      mix-blend-mode: difference;
     }
     .nav-logo {
       font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.15em; color: #fff;
+      letter-spacing: 0.15em; color: var(--text);
     }
     .nav-links { display: flex; gap: 2rem; }
     .nav-links a {
       font-family: 'DM Mono', monospace; font-size: 0.6rem;
       text-transform: uppercase; letter-spacing: 0.12em;
-      color: rgba(255,255,255,0.5); transition: color 0.3s; position: relative;
+      color: var(--muted); transition: color 0.3s; position: relative;
     }
     .nav-links a::after {
       content: ''; position: absolute; bottom: -3px; left: 0;
       width: 0; height: 1px; background: var(--accent);
       transition: width 0.35s cubic-bezier(.16,1,.3,1);
     }
-    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover { color: var(--text); }
     .nav-links a:hover::after { width: 100%; }
 
     .side-text {
@@ -146,10 +144,6 @@
     .bottom-cta a:hover { color: var(--text); }
     .bottom-cta a:hover::after { transform: scaleX(1); transform-origin: left; }
 
-    html.light .nav { mix-blend-mode: normal; }
-    html.light .nav-links a { color: rgba(0,0,0,0.4); }
-    html.light .nav-links a:hover { color: #000; }
-    html.light .nav-logo { color: #000; }
     html.light .toggle-mode { color: var(--text); background: var(--border); }
 
     @media (max-width: 768px) {
@@ -203,8 +197,6 @@
     <a href="index.html" class="nav-logo">KNUFF</a>
     <div class="nav-links">
       <a href="projects.html">Projects</a>
-      <a href="#">Archive</a>
-      <a href="#">Contact</a>
     </div>
   </nav>
 
@@ -231,57 +223,72 @@
   </div>
 
   <script>
-    var loader = document.getElementById('loader');
-    var c, ctx, W, H, asteriskWrap, img, boxes, m, xTo, yTo, sTo, props, T;
-    var started = false;
+    var c, ctx, W, H, dots, mouse, spacing, T;
 
     function startApp() {
-      if (started) return;
-      started = true;
       c = document.querySelector('#c');
       ctx = c.getContext('2d');
       T = Math.PI * 2;
-      m = { x: 0, y: 0, s: 1.5, x2: 0, y2: 0 };
-      boxes = [];
-      asteriskWrap = document.querySelector('.asterisk-wrap');
-      xTo = gsap.quickTo(m, "x", { duration: 1, ease: "expo" });
-      yTo = gsap.quickTo(m, "y", { duration: 1, ease: "expo" });
-      sTo = gsap.quickTo(m, "s", { duration: 2, ease: "power2" });
-      props = {
-        img: 'hero.jpg',
-        boxSize: window.innerWidth < 480 ? 120 : window.innerWidth < 768 ? 100 : 80,
-        fade: false,
-        dots: true,
-        dotColor: getComputedStyle(document.documentElement).getPropertyValue('--text').trim() === '#e5e5e5' ? '#fff' : '#111'
-      };
-      ctx.fillStyle = props.dotColor;
-      img = new Image();
-      img.src = props.img;
-      img.onload = function() {
-        if (img.width === 0) return;
-        resizeCanvas();
-        buildGrid();
-        gsap.ticker.add(update);
-        loader.classList.add('hidden');
-      };
-      img.onerror = function() { loader.classList.add('hidden'); };
+      mouse = { x: -999, y: -999 };
+      spacing = window.innerWidth < 480 ? 50 : 40;
+
+      resizeCanvas();
+      buildGrid();
+      animate();
+      document.getElementById('loader').classList.add('hidden');
 
       c.addEventListener('pointermove', function(e) {
-        if (!m) return;
-        m.x2 = e.clientX; m.y2 = e.clientY;
-        xTo(m.x2); yTo(m.y2);
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
       });
-
+      c.addEventListener('pointerleave', function() {
+        mouse.x = -999;
+        mouse.y = -999;
+      });
       window.addEventListener('resize', function() {
-        if (!ctx) return;
-        var oldSize = props.boxSize;
-        props.boxSize = window.innerWidth < 480 ? 120 : window.innerWidth < 768 ? 100 : 80;
-        if (props.boxSize !== oldSize) { resizeCanvas(); buildGrid(); return; }
+        spacing = window.innerWidth < 480 ? 50 : 40;
         resizeCanvas();
+        buildGrid();
       });
     }
 
-    /* Theme — apply before canvas starts */
+    function resizeCanvas() {
+      W = window.innerWidth; H = window.innerHeight;
+      c.width = W; c.height = H;
+    }
+
+    function buildGrid() {
+      dots = [];
+      for (var x = spacing; x < W; x += spacing)
+        for (var y = spacing; y < H; y += spacing)
+          dots.push({ x: x, y: y });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, W, H);
+      var htmlEl = document.documentElement;
+      var isLight = htmlEl.className === 'light';
+      var dotColor = isLight ? '0,0,0' : '255,255,255';
+      var maxDist = spacing * 4;
+
+      for (var i = 0; i < dots.length; i++) {
+        var dx = dots[i].x - mouse.x;
+        var dy = dots[i].y - mouse.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var pull = Math.max(0, 1 - dist / maxDist);
+        var size = 1.5 + pull * 6;
+        var alpha = 0.15 + pull * 0.85;
+        var ox = dx * pull * 0.4;
+        var oy = dy * pull * 0.4;
+        ctx.beginPath();
+        ctx.arc(dots[i].x + ox, dots[i].y + oy, size, 0, T);
+        ctx.fillStyle = 'rgba(' + dotColor + ',' + alpha + ')';
+        ctx.fill();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    /* Theme toggle */
     var toggleBtn = document.getElementById('toggleMode');
     var htmlEl = document.documentElement;
     if (localStorage.getItem('theme') === 'light') {
@@ -293,98 +300,16 @@
         htmlEl.className = 'dark';
         toggleBtn.textContent = '\uD83C\uDF19 Dark';
         localStorage.setItem('theme', 'dark');
-        if (ctx) { props.dotColor = '#fff'; ctx.fillStyle = '#fff'; }
       } else {
         htmlEl.className = 'light';
         toggleBtn.textContent = '\u2600\uFE0F Light';
         localStorage.setItem('theme', 'light');
-        if (ctx) { props.dotColor = '#111'; ctx.fillStyle = '#111'; }
       }
     });
 
-    /* Preload: image + fonts */
-    var loaded = 0;
-    function checkReady() {
-      loaded++;
-      if (loaded >= 2) startApp();
-    }
-    var preloadImg = new Image();
-    preloadImg.src = 'hero.jpg';
-    preloadImg.onload = checkReady;
-    preloadImg.onerror = checkReady;
-    document.fonts.ready.then(checkReady);
-
-    /* Fallback: start after 4s no matter what */
-    setTimeout(function() { if (!started) startApp(); }, 4000);
-
-    function px(imgX, imgY) {
-      var imgA = 1376 / 691, canvasA = W / H, cx, cy, scale;
-      if (canvasA > imgA) { scale = H / 691; cx = W / 2; cy = 0; }
-      else { scale = W / 1376; cx = 0; cy = H / 2; }
-      return { x: cx + imgX * scale - (W / 2), y: cy + imgY * scale - (H / 2) };
-    }
-
-    function positionAsterisk() {
-      var p = px(710, 240);
-      asteriskWrap.style.left = (W / 2 + p.x) + 'px';
-      asteriskWrap.style.top = (H / 2 + p.y) + 'px';
-    }
-
-    function resizeCanvas() {
-      W = window.innerWidth; H = window.innerHeight;
-      c.width = W; c.height = H;
-      positionAsterisk();
-    }
-
-    function buildGrid() {
-      boxes = [];
-      var step = props.boxSize;
-      for (var x = 0; x <= W; x += step)
-        for (var y = 0; y <= H; y += step)
-          boxes.push({ x: x, y: y, d: 0, s: 0 });
-    }
-
-    function getImgSourceRect() {
-      var imgA = img.width / img.height, canvasA = W / H, sx, sy, sw, sh;
-      if (canvasA > imgA) {
-        sh = img.height; sw = img.height * canvasA;
-        sx = (img.width - sw) / 2; sy = 0;
-      } else {
-        sw = img.width; sh = img.width / canvasA;
-        sx = 0; sy = (img.height - sh) / 2;
-      }
-      return { sx: sx, sy: sy, sw: sw, sh: sh };
-    }
-
-    function update() {
-      var d = Math.hypot((m.x - m.x2), (m.y - m.y2));
-      sTo(d / Math.max(W, H) * 2);
-      ctx.clearRect(0, 0, W, H);
-      var src = getImgSourceRect();
-      ctx.drawImage(img, src.sx, src.sy, src.sw, src.sh, 0, 0, W, H);
-      for (var i = 0; i < boxes.length; i++) drawImg(boxes[i]);
-      if (props.dots)
-        for (var i = 0; i < boxes.length; i++) drawDots(boxes[i]);
-    }
-
-    function drawImg(cell) {
-      cell.d = Math.hypot((cell.x - m.x), (cell.y - m.y));
-      cell.s = 1 - gsap.utils.clamp(0, 1, cell.d / Math.max(W, H) / m.s);
-      if (cell.s < 0.001) return;
-      var boxScaled = props.boxSize * cell.s;
-      var src = getImgSourceRect();
-      var sx = src.sx + ((cell.x + boxScaled / 2) / W) * src.sw;
-      var sy = src.sy + ((cell.y + boxScaled / 2) / H) * src.sh;
-      var sw = ((props.boxSize - boxScaled) / W) * src.sw;
-      var sh = ((props.boxSize - boxScaled) / H) * src.sh;
-      ctx.drawImage(img, sx, sy, sw, sh, cell.x, cell.y, props.boxSize, props.boxSize);
-    }
-
-    function drawDots(cell) {
-      ctx.beginPath();
-      ctx.arc(cell.x, cell.y, props.boxSize * 0.15 * cell.s, 0, T);
-      ctx.fill();
-    }
+    /* Fonts ready + fallback */
+    document.fonts.ready.then(startApp);
+    setTimeout(function() { if (!c) startApp(); }, 3000);
   </script>
 </body>
 </html>
