@@ -48,7 +48,7 @@
       background: var(--bg-primary); color: var(--text-primary);
       font-family: var(--font-body); font-size: var(--text-body);
       -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
+      min-height: 100vh;
       transition: background var(--transition), color var(--transition);
     }
     a { text-decoration: none; color: inherit; }
@@ -86,10 +86,6 @@
       display: flex; align-items: center; gap: 6px;
     }
     .nav-links a:hover { color: var(--text-primary); border-color: var(--border-muted); }
-    .nav-links a.active, .nav-links a.active:hover {
-      color: var(--text-primary); background: var(--bg-secondary);
-      border-color: var(--border-muted);
-    }
 
     .theme-fab {
       position: fixed; bottom: 32px; right: 32px; z-index: 200;
