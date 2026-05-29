@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Works — KNUFF</title>
-  <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('knuff-theme') || 'dark');</script>
   <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wdth,wght@75,300;75,400;75,600;75,700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -405,16 +404,20 @@
   </script>
 
   <script>
-    var modeBtn = document.getElementById('modeToggle');
-    if (modeBtn) {
-      modeBtn.addEventListener('click', function() {
-        var html = document.documentElement;
-        var isDark = html.getAttribute('data-theme') === 'dark';
-        var next = isDark ? 'light' : 'dark';
-        html.setAttribute('data-theme', next);
-        localStorage.setItem('knuff-theme', next);
-      });
-    }
+    (function() {
+      var stored = localStorage.getItem('knuff-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', stored);
+      var btn = document.getElementById('modeToggle');
+      if (btn) {
+        btn.addEventListener('click', function() {
+          var html = document.documentElement;
+          var isDark = html.getAttribute('data-theme') === 'dark';
+          var next = isDark ? 'light' : 'dark';
+          html.setAttribute('data-theme', next);
+          localStorage.setItem('knuff-theme', next);
+        });
+      }
+    })();
   </script>
 </body>
 </html>
