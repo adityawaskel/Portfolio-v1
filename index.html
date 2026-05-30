@@ -34,24 +34,11 @@
     .nav-links{display:flex;align-items:center;justify-content:center;gap:6px}
     .nav-links a{position:relative;z-index:1;background:transparent;border:none;padding:6px 14px;height:36px;border-radius:99px;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:500;letter-spacing:.02em;color:var(--nav-text);display:flex;align-items:center;gap:4px;transition:color .3s ease}
     .nav-links a.active,.nav-links a:hover{color:var(--text)}
-    .flip-hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8rem 2rem 6rem;background:var(--bg)}
-    .flip-board{width:100%;max-width:800px;margin:0 auto auto;padding:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
-    .flap-grid{display:grid;gap:2px}
-    .flap-cell{aspect-ratio:3/6;position:relative;perspective:600px;overflow:hidden;border-radius:2px;border:1px solid var(--border);background:var(--bg)}
-    .flap-cell .cell-half{position:absolute;left:0;right:0;height:calc(50% - 0.5px);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:clamp(6px,1.2vw,16px);color:var(--text);background:var(--surface);line-height:1;transition:background .12s,color .12s}
-    .flap-cell .cell-top{top:0;border-radius:2px 2px 0 0}
-    .flap-cell .cell-top .char{position:absolute;top:0;height:200%;display:flex;align-items:flex-start;justify-content:center;width:100%}
-    .flap-cell .cell-bottom{bottom:0;border-radius:0 0 2px 2px}
-    .flap-cell .cell-bottom .char{position:absolute;bottom:0;height:200%;display:flex;align-items:flex-end;justify-content:center;width:100%}
-    .flap-cell .divider-line{position:absolute;left:0;right:0;top:50%;z-index:20;height:1px;background:var(--stroke);pointer-events:none;transform:translateY(-0.5px)}
-    .flap-cell .flap{position:absolute;left:0;right:0;height:calc(50% - 0.5px);overflow:hidden;backface-visibility:hidden;z-index:5;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:clamp(6px,1.2vw,16px);line-height:1;will-change:transform}
-    .flap-cell .flap .char{position:absolute;height:200%;display:flex;justify-content:center;width:100%}
-    .flap-cell .flap-top{top:0;transform-origin:50% 100%;background:var(--surface);color:var(--text)}
-    .flap-cell .flap-top .char{top:0;align-items:flex-start}
-    .flap-cell .flap-bottom{bottom:0;transform-origin:50% 0%;background:var(--surface);color:var(--text)}
-    .flap-cell .flap-bottom .char{bottom:0;align-items:flex-end}
-    .flap-cell::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:repeating-linear-gradient(to right,var(--stroke) 0,var(--stroke) 1px,transparent 1px,transparent 2px);opacity:0.15;z-index:15;pointer-events:none}
-    .hero-below{text-align:center;margin-top:2rem}
+    .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8rem 2rem 6rem;background:var(--bg)}
+    .hero-title{font-size:clamp(4rem,12vw,10rem);font-weight:800;letter-spacing:-.04em;line-height:.85;text-transform:uppercase;color:var(--text);text-align:center}
+    .hero-title .accent{color:var(--accent)}
+    .hero-sub{font-family:'DM Mono',monospace;font-size:clamp(.65rem,1.4vw,1rem);letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-top:1.5rem}
+    .hero-below{text-align:center;margin-top:3rem}
     .hero-below .hero-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:block}
     .hero-below .hero-cta{display:inline-flex;align-items:center;gap:.5rem;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text);padding:.75rem 1.5rem;border:1px solid var(--border);border-radius:99px;transition:background .3s,border-color .3s}
     .hero-below .hero-cta:hover{background:var(--surface);border-color:var(--accent)}
@@ -131,8 +118,7 @@ html.light .card:hover{background:rgba(255,255,255,0.95);box-shadow:0 0 30px rgb
     .reveal.visible{opacity:1;transform:translateY(0)}
     @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.loader-bar::after{animation:none}.testimonial-card{opacity:1;transform:none;transition:none}}
     @media(max-width:768px){
-      .flip-hero{padding:6rem 1.25rem 4rem}
-      .flip-board{max-width:480px;padding:8px}
+      .hero{padding:6rem 1.25rem 4rem}
       .testimonials-track{flex-direction:column;gap:1.5rem}
       .liquid-nav{left:16px;right:16px;top:16px;padding:4px 10px}
       .liquid-nav .brand{font-size:.65rem;padding:4px 4px;height:32px;left:8px}
@@ -154,8 +140,6 @@ html.light .card:hover{background:rgba(255,255,255,0.95);box-shadow:0 0 30px rgb
       .theme-fab{bottom:20px;right:20px;width:38px;height:38px}
     }
     @media(max-width:480px){
-      .flip-board{max-width:360px;padding:6px}
-      .flap-grid{gap:1.5px}
       .nav-links a{font-size:.55rem;padding:2px 6px;height:28px}
       .card{width:220px;min-height:300px;padding:1rem}
       .card .img-grid .img-main .img-wrap{height:90px}
@@ -174,7 +158,7 @@ html.light .card:hover{background:rgba(255,255,255,0.95);box-shadow:0 0 30px rgb
 <div id="loader"><div class="loader-bar"></div></div>
 <nav class="liquid-nav" id="liquidNav"><a href="index.html" class="brand">KNUFF</a><div class="nav-links"><a href="index.html" class="active"><span>[?]</span> Home</a><a href="projects.html"><span>[&nbsp;&nbsp;&nbsp;]</span> Works</a></div></nav>
 <button class="theme-fab" id="modeToggle"><div class="icon-wrap"><svg class="sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg><svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></div></button>
-<div class="flip-hero"><div class="flip-board"><div class="flap-grid" id="flipGrid"></div></div><div class="hero-below"><span class="hero-label">Started 2023</span><a href="#work" class="hero-cta">View selected work</a></div></div>
+<div class="hero"><h1 class="hero-title">KNUFF</h1><div class="hero-sub">Visual Artist &amp; Director</div><div class="hero-below"><span class="hero-label">Started 2023</span><a href="#work" class="hero-cta">View selected work</a></div></div>
 <div id="hsWrap"><div class="hs-inner" id="hsInner"><div class="scanlines"></div><div class="vignette"></div><div class="noise"></div><div class="hud"><div class="hud-top"><a href="index.html">&larr; HOME</a><div class="hud-line"></div><span>FPS: <strong id="fps">60</strong></span></div><div class="center-nav" style="align-self:flex-start;margin-top:auto;margin-bottom:auto;writing-mode:vertical-rl;transform:rotate(180deg)">SCROLL VELOCITY // <strong id="vel-readout">0.00</strong></div><div class="hud-bottom"><span>COORD: <strong id="coord">000.000</strong></span><div class="hud-line"></div><span>VER 2.0.4 [BETA]</span></div></div><div class="viewport" id="viewport"><div class="world" id="world"></div></div></div></div>
 <div class="hs-scroll-proxy" id="scrollProxy"></div>
 <div class="content-after" id="contentAfter">
@@ -312,21 +296,6 @@ function hsRaf(time){
   requestAnimationFrame(hsRaf);
 }
 requestAnimationFrame(hsRaf);
-
-// ── Split-Flap Board ──
-var FLAP_CHARS=" ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$()-+&=;:'\",./?°";
-var ACCENTS=[{bg:"#d32f2f",txt:"#fff"},{bg:"#f57c00",txt:"#fff"},{bg:"#fbc02d",txt:"#111"},{bg:"#43a047",txt:"#fff"},{bg:"#1e88e5",txt:"#fff"},{bg:"#8e24aa",txt:"#fff"},{bg:"#fafafa",txt:"#111"}];
-var BOARD_COLS=22,BOARD_ROWS=6;
-var flipGrid=document.getElementById('flipGrid');
-var boardCells=[],curBoardGrid=null;
-var flipPhrases=["\n\nKNUFF\n\n","\nVISUAL ARTIST\n& DIRECTOR\n","\nMOTION / 3D\n/ BRAND CONTENT\n","\nCOMMERCIAL\nWORK SINCE 2023\n"];
-var flipIdx=0,flipTimer=null;
-function txtGrid(t){var ls=t.split('\n').slice(0,BOARD_ROWS),g=[];for(var R=0;R<BOARD_ROWS;R++){var ro=[];if(R<ls.length){var li=ls[R],st=Math.max(0,Math.floor((BOARD_COLS-li.length)/2));for(var C=0;C<BOARD_COLS;C++)ro.push(C>=st&&C-st<li.length?li[C-st].toUpperCase():' ')}else for(var C=0;C<BOARD_COLS;C++)ro.push(' ');g.push(ro)}return g}
-function setChars(cell,ch){var d=ch===' '?'\u00A0':ch;var t=cell.querySelector('.cell-top .char'),b=cell.querySelector('.cell-bottom .char');if(t)t.textContent=d;if(b)b.textContent=d}
-function initFlipBoard(){for(var i=0;i<BOARD_ROWS*BOARD_COLS;i++){var c=document.createElement('div');c.className='flap-cell';c.innerHTML='<div class="cell-half cell-top"><span class="char">&nbsp;</span></div><div class="cell-half cell-bottom"><span class="char">&nbsp;</span></div><div class="divider-line"></div>';flipGrid.appendChild(c);boardCells.push(c)}curBoardGrid=txtGrid('');setTimeout(function(){updateBoard(flipPhrases[0]);flipIdx=1;flipTimer=setInterval(function(){updateBoard(flipPhrases[flipIdx%flipPhrases.length]);flipIdx++},5000)},800)}
-function updateBoard(t){var ng=txtGrid(t);for(var i=0;i<boardCells.length;i++){var r=Math.floor(i/BOARD_COLS),c=i%BOARD_COLS,oc=curBoardGrid[r][c],nc=ng[r][c];if(oc!==nc)animCell(boardCells[i],oc,nc,c*30+r*20)}curBoardGrid=ng}
-function animCell(cell,oc,nc,dl){setTimeout(function(){var steps=12+Math.floor(Math.random()*14),stp=0,topEl=cell.querySelector('.cell-top'),botEl=cell.querySelector('.cell-bottom');function resetCol(){topEl.style.background='';topEl.style.color='';botEl.style.background='';botEl.style.color=''}function scr(){if(stp>=steps){resetCol();setChars(cell,nc);var os=document.createElement('span');os.className='char';os.textContent=oc===' '?'\u00A0':oc;var ft=document.createElement('div');ft.className='flap flap-top';ft.appendChild(os);cell.appendChild(ft);var ns=document.createElement('span');ns.className='char';ns.textContent=nc===' '?'\u00A0':nc;var fb=document.createElement('div');fb.className='flap flap-bottom';fb.appendChild(ns);cell.appendChild(fb);gsap.set(fb,{rotationX:90});gsap.to(ft,{rotationX:-100,duration:0.3,ease:'power2.in',transformOrigin:'50% 100%'});gsap.to(fb,{rotationX:0,duration:0.25,ease:'power2.out',delay:0.15,transformOrigin:'50% 0%',onComplete:function(){if(ft&&ft.parentNode)ft.remove();if(fb&&fb.parentNode)fb.remove()}});return}var rd=FLAP_CHARS[1+Math.floor(Math.random()*(FLAP_CHARS.length-1))];setChars(cell,rd);if(Math.random()<0.2){var a=ACCENTS[Math.floor(Math.random()*ACCENTS.length)];topEl.style.background=a.bg;topEl.style.color=a.txt;botEl.style.background=a.bg;botEl.style.color=a.txt}else{resetCol()}stp++;setTimeout(scr,55)}setTimeout(scr,0)},dl)}
-initFlipBoard();
 
 // ── Testimonials Reveal ──
 ScrollTrigger.batch('.testimonial-card',{once:true,onEnter:function(b){b.forEach(function(card,i){var cnt=b.length;var dist=i-Math.floor((cnt-1)/2);gsap.set(card,{x:dist*160,rotationY:dist*40,opacity:0,scale:0.85});gsap.to(card,{x:0,rotationY:0,opacity:1,scale:1,duration:0.9,delay:i*0.15,ease:'power3.out'})})}});
