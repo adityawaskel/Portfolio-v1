@@ -36,7 +36,6 @@
     .nav-links a.active,.nav-links a:hover{color:var(--text)}
     .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8rem 2rem 6rem;background:var(--bg)}
     .hero-title{font-size:clamp(4rem,12vw,10rem);font-weight:800;letter-spacing:-.04em;line-height:.85;text-transform:uppercase;color:var(--text);text-align:center}
-    .hero-title .accent{color:var(--accent)}
     .hero-sub{font-family:'DM Mono',monospace;font-size:clamp(.65rem,1.4vw,1rem);letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-top:1.5rem}
     .hero-below{text-align:center;margin-top:3rem}
     .hero-below .hero-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:block}
@@ -298,7 +297,9 @@ function hsRaf(time){
 requestAnimationFrame(hsRaf);
 
 // ── Testimonials Reveal ──
-ScrollTrigger.batch('.testimonial-card',{once:true,onEnter:function(b){b.forEach(function(card,i){var cnt=b.length;var dist=i-Math.floor((cnt-1)/2);gsap.set(card,{x:dist*160,rotationY:dist*40,opacity:0,scale:0.85});gsap.to(card,{x:0,rotationY:0,opacity:1,scale:1,duration:0.9,delay:i*0.15,ease:'power3.out'})})}});
+var tc=document.querySelectorAll('.testimonial-card');
+var cnt=tc.length,centerIdx=Math.floor((cnt-1)/2);
+[].forEach.call(tc,function(card,i){var dist=i-centerIdx;gsap.set(card,{x:dist*180,rotationY:dist*45,opacity:0,scale:0.8});gsap.to(card,{x:0,rotationY:0,opacity:1,scale:1,scrollTrigger:{trigger:'.testimonials-inner',start:'top bottom',end:'+=800',scrub:1.2}})});
 
 function initScrollReveal(){ScrollTrigger.batch('.reveal',{once:true,onEnter:function(b){b.forEach(function(e){e.classList.add('visible')})}})}
 (function(){var s=localStorage.getItem('knuff-theme')||localStorage.getItem('theme')||'dark',h=document.documentElement;h.className=s;h.setAttribute('data-theme',s);var b=document.getElementById('modeToggle');if(b){b.addEventListener('click',function(){var d=h.getAttribute('data-theme')==='dark',n=d?'light':'dark';h.className=n;h.setAttribute('data-theme',n);localStorage.setItem('knuff-theme',n);localStorage.setItem('theme',n)})}})();
